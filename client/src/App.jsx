@@ -2,7 +2,6 @@ import React from 'react';
 import { useState } from 'react';
 import AnalyticsTable from './AnalyticsTable';
 import ChatInterface from './ChatInterface';
-// import ChatInterface from './ChatInterface'; // You will create this in Phase 2
 
 function App() {
   const dummyData = [
@@ -23,13 +22,25 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
+
       {/* 1. Navbar */}
       <header className="bg-blue-800 text-white p-4 shadow-md flex justify-between items-center">
-        <h1 className="text-2xl font-bold">AI Retail Assistant</h1>
-        <div className="bg-blue-700 px-3 py-1 rounded">
-          <select className="bg-transparent outline-none">
-            <option>Node: Main Counter</option>
-            <option>Node: Store Branch A</option>
+        <div className="flex items-center gap-4">
+
+          <h1 className="text-2xl font-bold">AI Retail Assistant</h1>
+          <span className="bg-blue-600 text-xs px-2 py-1 rounded-full uppercase tracking-wider">Frontend v1.0</span>
+        </div>
+  
+        {/* This is your Node Selector */}
+        <div className="flex items-center gap-2">
+          <label htmlFor="node-select" className="text-sm font-medium text-blue-100">Active Node:</label>
+          <select
+            id="node-select"
+            className="bg-blue-700 text-white border border-blue-500 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-white"
+          >
+            <option value="main">Main Counter</option>
+            <option value="branch-a">Store Branch A</option>
+            <option value="branch-b">Store Branch B</option>
           </select>
         </div>
       </header>
@@ -50,7 +61,6 @@ function App() {
 
         {/* Right Panel: Data Table (60% roughly) */}
         <section className="w-full md:w-[60%] h-[80vh] overflow-y-auto">
-          {/* Direct call to your component without extra nesting */}
           <AnalyticsTable data={dummyData} /> 
         </section>
 
