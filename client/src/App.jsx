@@ -1,9 +1,13 @@
 import React from 'react';
 import { useState } from 'react';
-// import AnalyticsTable from './AnalyticsTable'; // You will create this in Phase 2
+import AnalyticsTable from './AnalyticsTable';
 // import ChatInterface from './ChatInterface'; // You will create this in Phase 2
 
 function App() {
+  const dummyData = [
+  { name: "Parth", itemsSold: 50, totalSalesValue: 1000, profitGenerated: 250, avgDiscount: 5, rating: "Excellent" },
+  { name: "Rahul", itemsSold: 20, totalSalesValue: 400, profitGenerated: 80, avgDiscount: 12, rating: "Needs Improvement" }
+  ];
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* 1. Navbar */}
@@ -36,6 +40,9 @@ function App() {
             <h2 className="text-xl font-bold mb-4 text-gray-700">Analytics Dashboard</h2>
             <p className="text-gray-400">Performance data will load here...</p>
           </div>
+          <section className="w-full md:w-2/3">
+             <AnalyticsTable data={dummyData} /> 
+          </section>
         </section>
 
       </main>
