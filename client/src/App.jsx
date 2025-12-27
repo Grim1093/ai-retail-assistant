@@ -35,7 +35,6 @@ function App() {
 
         {/* Right Panel: Data Table (60% roughly) */}
         <section className="w-full md:w-[60%]">
-          {/* <AnalyticsTable /> will go here later */}
           <div className="bg-white p-6 rounded-lg shadow border h-full">
             <h2 className="text-xl font-bold mb-4 text-gray-700">Analytics Dashboard</h2>
             <p className="text-gray-400">Performance data will load here...</p>
