@@ -1,6 +1,7 @@
 import React from 'react';
 import { useState } from 'react';
 import AnalyticsTable from './AnalyticsTable';
+import ChatInterface from './ChatInterface';
 // import ChatInterface from './ChatInterface'; // You will create this in Phase 2
 
 function App() {
@@ -8,6 +9,18 @@ function App() {
   { name: "Parth", itemsSold: 50, totalSalesValue: 1000, profitGenerated: 250, avgDiscount: 5, rating: "Excellent" },
   { name: "Rahul", itemsSold: 20, totalSalesValue: 400, profitGenerated: 80, avgDiscount: 12, rating: "Needs Improvement" }
   ];
+
+  const [input, setInput] = useState('');
+  const [messages, setMessages] = useState([
+    { role: 'ai', text: 'Hello! How can I help you with the retail data today?' }
+  ]);
+
+  const handleSend = () => {
+    if (!input.trim()) return;
+    setMessages([...messages, { role: 'user', text: input }]);
+    setInput(''); // Clear input after sending
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* 1. Navbar */}
@@ -27,10 +40,12 @@ function App() {
         {/* Left Panel: Chat (40% roughly) */}
         <section className="w-full md:w-[40%] h-[80vh] bg-white rounded-lg shadow border flex flex-col">
           <div className="p-4 border-b font-bold text-gray-700">AI Chat Assistant</div>
-          <div className="flex-1 p-4 bg-gray-50">
-            {/* <ChatInterface /> will go here later */}
-            <p className="text-gray-400">Chat messages will appear here...</p>
-          </div>
+          <ChatInterface 
+            messages={messages} 
+            onSend={handleSend} 
+            input={input} 
+            setInput={setInput} 
+          />
         </section>
 
         {/* Right Panel: Data Table (60% roughly) */}
