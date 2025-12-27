@@ -34,14 +34,9 @@ function App() {
         </section>
 
         {/* Right Panel: Data Table (60% roughly) */}
-        <section className="w-full md:w-[60%]">
-          <div className="bg-white p-6 rounded-lg shadow border h-full">
-            <h2 className="text-xl font-bold mb-4 text-gray-700">Analytics Dashboard</h2>
-            <p className="text-gray-400">Performance data will load here...</p>
-          </div>
-          <section className="w-full md:w-2/3">
-             <AnalyticsTable data={dummyData} /> 
-          </section>
+        <section className="w-full md:w-[60%] h-[80vh] overflow-y-auto">
+          {/* Direct call to your component without extra nesting */}
+          <AnalyticsTable data={dummyData} /> 
         </section>
 
       </main>
