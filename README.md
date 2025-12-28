@@ -20,16 +20,27 @@ Tools: Axios, Mongoose, Dotenv
 
 ai-retail-assistant/
 ├── client/          # Frontend (React App)
+
 │   ├── src/
+
 │   ├── package.json
+
 │   └── ...
+
 ├── server/          # Backend (Node API)
+
 │   ├── config/      # DB Connection
+
 │   ├── models/      # Mongoose Schemas (Product, Employee)
+
 │   ├── seed.js      # Data Seeding Script
+
 │   ├── server.js    # Main Entry Point
+
 │   └── ...
+
 └── README.md        # This file
+
 
 
 🛠️ Setup Instructions
