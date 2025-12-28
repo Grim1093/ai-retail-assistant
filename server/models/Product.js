@@ -1,18 +1,24 @@
-// server/models/Product.js
-const mongoose = require('mongoose');
-
-console.log("Loading Product Model...");
+const mongoose = require("mongoose");
 
 const ProductSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    category: String,
-    currentPrice: Number,
-    stockLevel: Number,
-    // Track Record Feature
-    priceHistory: [{ date: Date, price: Number }],
-    // Student Benefits Feature
-    studentBenefits: String, 
-    isAvailableInOtherNodes: Boolean
+  name: { type: String, required: true },
+  category: String,
+  currentPrice: Number,
+  stockLevel: Number,
+
+  // Track record (past prices)
+  priceHistory: [
+    {
+      date: Date,
+      price: Number
+    }
+  ],
+
+  // Student benefits / offers
+  studentBenefits: String,
+
+  // Multi-node availability
+  isAvailableInOtherNodes: Boolean
 });
 
-module.exports = mongoose.model('Product', ProductSchema);
+module.exports = mongoose.model("Product", ProductSchema);
