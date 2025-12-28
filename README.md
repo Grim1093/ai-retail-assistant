@@ -50,45 +50,45 @@ cd server
 
 
 Install dependencies:
-
+```
 npm install
-
+```
 
 Create a .env file in the server/ folder:
-
+```
 PORT=5000
 MONGO_URI=mongodb+srv://<your-username>:<password>@cluster.mongodb.net/retail-db
 GEMINI_API_KEY=AIzaSy...
-
+```
 
 Seed the Database (Import initial products/employees):
-
+```
 node seed.js
-
+```
 
 Start the Server:
-
+```
 node server.js
-
+```
 
 Success Message: Server is successfully running on port 5000
 
 3. Frontend Setup (Client)
 
 Open a new terminal and navigate to the client folder:
-
+```
 cd client
-
+```
 
 Install dependencies:
-
+```
 npm install
-
+```
 
 Start the React App:
-
+```
 npm run dev
-
+```
 
 Access App at: http://localhost:5173
 
