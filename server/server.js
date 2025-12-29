@@ -107,6 +107,18 @@ app.post('/api/chat', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
+// Add this to server/server.js before app.listen
+const Employee = require('./models/Employee');
+
+app.get('/api/employees', async (req, res) => {
+  try {
+    const employees = await Employee.find();
+    res.json(employees);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 app.listen(PORT, () => {
     console.log(`\n--- Server is successfully running on port ${PORT} ---`);
     console.log("Waiting for requests...\n");
