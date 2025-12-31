@@ -1,6 +1,13 @@
+// client/src/components/AnalyticsTable.jsx
 import React from 'react';
 
 const AnalyticsTable = ({ data }) => {
+  console.log("[AnalyticsTable] Rendering with data count:", data?.length);
+
+  if (!data || data.length === 0) {
+    return <div className="p-4 text-slate-500">No employee data available to display.</div>;
+  }
+
   return (
     <div className="overflow-x-auto p-4 bg-white shadow rounded-lg">
       <h2 className="text-xl font-bold mb-4 text-gray-800">Employee Performance Dashboard</h2>

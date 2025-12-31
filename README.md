@@ -1,156 +1,113 @@
-🛒 AI Retail Assistant
+# **🛒 AI Retail Assistant**
 
-A smart, AI-powered dashboard for retail staff. This application allows frontline employees to instantly query product details, prices, and student discounts using natural language, and view employee performance metrics.
+**A smart, AI-powered dashboard for retail staff.**
 
-Built for the Microsoft Retail AI Hackathon.
+This application empowers frontline employees to instantly query product details, prices, and discounts using natural language, as well as track employee performance metrics through a real-time dashboard.
 
-🚀 Tech Stack
+Status: Built for the Microsoft Retail AI Hackathon.  
+Current Version: Stable with AI Chat (Gemini Integration) & Analytics Dashboard.
 
-Frontend: React (Vite), Tailwind CSS
+## **🏆 Key Achievements & Features**
 
-Backend: Node.js, Express.js
+We have successfully implemented the following features:
 
-Database: MongoDB (Atlas)
+### **1\. 🤖 Context-Aware AI Chat Assistant**
 
-AI Engine: Google Gemini API (switched from OpenAI for this build)
+* **Powered by Google Gemini 2.5 Flash:** We successfully migrated from OpenAI to Google's Gemini API for faster, cost-effective inference.  
+* **RAG (Retrieval-Augmented Generation):** The AI doesn't just "guess"; it actively searches our **MongoDB inventory** to find relevant product data (Price, Stock, Discounts) and answers user questions based *only* on that verified context.  
+* **Natural Language Processing:** Staff can ask questions like *"Do we have the Hoodie in stock?"* or *"What is the student discount for the laptop?"* and get accurate, data-backed responses.
 
-Tools: Axios, Mongoose, Dotenv
+### **2\. 📊 Employee Performance Dashboard**
 
-📂 Project Structure
+* **Real-Time Analytics:** Visualizes sales data, profit margins, and customer ratings for every employee in a clean tabular format.  
+* **Dynamic Data:** Fetches live data from the backend (/api/employees) rather than using static hardcoded lists.  
+* **Clean UI:** Built with **Tailwind CSS v4** for a modern, responsive interface.
 
-ai-retail-assistant/
-├── client/          # Frontend (React App)
+### **3\. 🛠️ Robust Backend Architecture**
 
-│   ├── src/
+* **Centralized Server Logic:** Clean separation of concerns with a dedicated server.js entry point.  
+* **Database Seeding:** Automated script (seed.js) to populate the database with realistic demo data for products and employees.
 
-│   ├── package.json
+## **🚀 Tech Stack**
 
-│   └── ...
+| Component | Technology |
+| :---- | :---- |
+| **Frontend** | React (Vite), Tailwind CSS v4, Axios |
+| **Backend** | Node.js, Express.js |
+| **Database** | MongoDB (Atlas), Mongoose |
+| **AI Engine** | Google Gemini API (gemini-2.5-flash) |
 
-├── server/          # Backend (Node API)
+## **🛠️ Setup Instructions**
 
-│   ├── config/      # DB Connection
+Follow these steps to get the project running locally.
 
-│   ├── models/      # Mongoose Schemas (Product, Employee)
+### **1\. Prerequisites**
 
-│   ├── seed.js      # Data Seeding Script
+* Node.js installed on your machine.  
+* A MongoDB Atlas Account (or local MongoDB).  
+* A Google Gemini API Key (Get it from Google AI Studio).
 
-│   ├── server.js    # Main Entry Point
+### **2\. Backend Setup**
 
-│   └── ...
+The backend handles the AI logic and database connections.
 
-└── README.md        # This file
-
-
-
-🛠️ Setup Instructions
-
-1. Prerequisites
-
-Node.js installed
-
-MongoDB Atlas Account (Connection String ready)
-
-Google Gemini API Key
-
-2. Backend Setup (Server)
-
-Navigate to the server folder:
-
+\# 1\. Navigate to the server folder  
 cd server
 
-
-Install dependencies:
-```
+\# 2\. Install dependencies  
 npm install
-```
 
-Create a .env file in the server/ folder:
-```
-PORT=5000
-MONGO_URI=mongodb+srv://<your-username>:<password>@cluster.mongodb.net/retail-db
-GEMINI_API_KEY=AIzaSy...
-```
+\# 3\. Create a .env file  
+\# Create a file named ".env" in the server folder and add:  
+PORT=5000  
+MONGO\_URI=mongodb+srv://\<your-username\>:\<password\>@cluster.mongodb.net/retail-db  
+GEMINI\_API\_KEY=AIzaSy...
 
-Seed the Database (Import initial products/employees):
-```
+\# 4\. Seed the Database (Important for first run\!)  
+\# This populates MongoDB with dummy products and employees.  
 node seed.js
-```
 
-Start the Server:
-```
-node server.js
-```
-
-Success Message: Server is successfully running on port 5000
-
-3. Frontend Setup (Client)
-
-Open a new terminal and navigate to the client folder:
-```
-cd client
-```
-
-Install dependencies:
-```
-npm install
-```
-
-Start the React App:
-```
+\# 5\. Start the Server  
+npm start  
+\# OR for development mode (auto-restart on save):  
 npm run dev
-```
 
-Access App at: http://localhost:5173
+*Success Output:* Server is successfully running on port 5000
 
-🔌 API Documentation
+### **3\. Frontend Setup**
 
-Base URL: http://localhost:5000/api
+The frontend is the user interface for the store staff.
 
-1. AI Chat Endpoint
+\# 1\. Open a new terminal and navigate to client  
+cd client
 
-Method: POST
+\# 2\. Install dependencies  
+npm install
 
-Route: /chat
+\# 3\. Start the React App  
+npm run dev
 
-Description: Sends a user question to the AI, which looks up product data in MongoDB and returns an answer.
+*Access the App at:* http://localhost:5173
 
-Body:
+## **🔌 API Reference**
 
-{
-  "prompt": "How much is the University Hoodie?"
-}
+**Base URL:** http://localhost:5000/api
 
+| Method | Endpoint | Description |
+| :---- | :---- | :---- |
+| **POST** | /chat | Accepts a { prompt }, searches DB for context (RAG), and returns an AI answer. |
+| **GET** | /employees | Returns a list of all employees and their performance metrics. |
 
-Response:
+## **👥 Team Roles**
 
-{
-  "answer": "The University Hoodie costs $45 and has a Buy 1 Get 1 50% off deal."
-}
+* **Pawan (Lead):** Backend Architecture, AI Integration (Gemini), Server Logic.  
+* **Chetan:** Database Design (MongoDB), Schema Modeling, Data Seeding.  
+* **Parth:** Frontend Design (UI/UX), Tailwind Styling, Component Layout.  
+* **Nitish:** Frontend Logic, API Integration (Axios), State Management.
 
+## **🐛 Troubleshooting**
 
-2. Get All Employees (Coming Soon)
-
-Method: GET
-
-Route: /employees
-
-Description: Returns a list of employee performance metrics for the dashboard.
-
-👥 Team Roles
-
-Pawan (Lead): Backend Architecture, AI Integration (Gemini), Server Logic.
-
-Chetan: Database Design (MongoDB), Schema Modeling, Data Seeding.
-
-Parth: Frontend Design (UI/UX), Tailwind Styling, Component Layout.
-
-Nitish: Frontend Logic, API Integration (Axios), State Management.
-
-🐛 Troubleshooting
-
-"MongoDB Connection Error": Check if your IP is whitelisted in MongoDB Atlas or if the MONGO_URI in .env is correct.
-
-"Gemini Error 404": Ensure you are using a supported model (e.g., gemini-pro or gemini-1.5-flash) and that your API key is valid.
-
-"No products found": Run node seed.js in the server folder to repopulate the database.
+* **"MongoDB Connection Error":** Check if your IP is whitelisted in MongoDB Atlas or if the MONGO\_URI in .env is correct.  
+* **"Gemini Error 404":** Ensure you are using the correct model name in server.js (currently set to gemini-2.5-flash) and that your API key is valid.  
+* **"No products found":** You must run node seed.js in the server folder at least once to populate the database.  
+* **Styles not loading?** Ensure @import "tailwindcss"; is present in client/src/index.css.
