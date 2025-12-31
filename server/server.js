@@ -47,62 +47,64 @@ app.get('/', (req, res) => {
 // PAWAN'S AI CHAT ROUTE (With Detailed Logs)
 // ==========================================
 app.post('/api/chat', async (req, res) => {
+    console.log("\n--- 🟢 [LOG] Chat Request Received ---");
     const { prompt } = req.body;
-    console.log(`\n========================================`);
-    console.log(`[API] Received Request: "${prompt}"`);
+    console.log(`1. User Prompt: "${prompt}"`);
 
     try {
-        // Step A: Search MongoDB (RAG)
-        console.log("[RAG] 1. Searching MongoDB for products...");
-        
-        const relevantProducts = await Product.find({});
+        // Step A: Search Database for context
+        // We fetch ALL products to filter them in JS (Simple RAG for Hackathon)
+        const allProducts = await Product.find({});
+        console.log(`2. Database Fetch: Retrieved ${allProducts.length} products.`);
 
-        // Step B: Build Context
+        // Step B: Filter relevant products based on user keywords
+        const keywords = prompt.toLowerCase().split(" ");
+        const relevantProducts = allProducts.filter(p => 
+            keywords.some(k => p.name.toLowerCase().includes(k))
+        );
+        console.log(`3. Context Filtering: Found ${relevantProducts.length} relevant items.`);
+
+        // Step C: Construct the "Context"
         let contextText = "";
         if (relevantProducts.length > 0) {
-            console.log(`[RAG] 2. FOUND ${relevantProducts.length} match(es) in DB.`);
-            contextText = relevantProducts.map(p => 
-                `Product: ${p.name} | Price: $${p.currentPrice} | Stock: ${p.stockLevel} | Discount: ${p.studentBenefits}`
+            contextText = "Here is the store data for the requested items:\n" + 
+            relevantProducts.map(p => 
+                `- Name: ${p.name}, Price: $${p.currentPrice}, Stock: ${p.stockLevel}, Benefits: ${p.studentBenefits}`
             ).join("\n");
-            console.log(`[RAG] 3. Context Data: \n${contextText}`);
         } else {
-            console.log("[RAG] 2. NO Matches found in DB.");
-            contextText = "No specific product data found in inventory.";
+            contextText = "No specific products matched the user's query in our database.";
         }
+        
+        console.log("4. AI Context Constructed.");
 
-        // Step C: Build AI Prompt
-        console.log("[AI] 4. Constructing Prompt for Gemini...");
+        // Step D: Send to Gemini
+        // We combine System Instruction + Context + User Prompt into one block
         const finalPrompt = `
-        System: You are a helpful retail assistant.
-        Context: Use the following store data to answer the user:
+        SYSTEM INSTRUCTION:
+        You are a helpful Retail Assistant. 
+        Use the following STORE DATA to answer the user. 
+        If the stock is low (<5), strictly warn the user.
+        If the user asks about discounts, check the 'Benefits' field.
+        
+        STORE DATA:
         ${contextText}
         
-        Rules:
-        1. If the user asks about a specific product in the context, use that exact price/discount.
-        2. If the product is not in the context, say you don't have that information.
-        
-        User Question: ${prompt}
+        USER QUESTION:
+        ${prompt}
         `;
 
-        // Step D: Call Gemini API
-        console.log("[AI] 5. Sending request to Google Gemini API...");
-        if (!model) {
-            throw new Error("Gemini Model is not initialized.");
-        }
         const result = await model.generateContent(finalPrompt);
         const response = await result.response;
         const aiAnswer = response.text();
 
-        console.log(`[AI] 6. Received Response: "${aiAnswer.substring(0, 50)}..."`);
+        console.log("5. Gemini Response Generated.");
+        console.log("--- 🔴 [LOG] Request Completed ---\n");
 
-        // Step E: Send to Frontend
         res.json({ answer: aiAnswer });
-        console.log("[API] 7. Response sent to client. Request Complete.");
 
     } catch (error) {
-        console.error("[CRITICAL ERROR] in /api/chat:");
-        console.error(error);
-        res.status(500).json({ answer: "Sorry, I encountered an internal server error." });
+        console.error("❌ [ERROR] AI Failure:", error.message);
+        res.status(500).json({ error: "Internal Server Error" });
     }
 });
 
@@ -111,12 +113,28 @@ const PORT = process.env.PORT || 5000;
 const Employee = require('./models/Employee');
 
 app.get('/api/employees', async (req, res) => {
-  try {
-    const employees = await Employee.find();
-    res.json(employees);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
+    console.log("\n--- 🟢 [LOG] Employee Data Request ---");
+    
+    // Check if the frontend sent a specific node (e.g., ?node=CampusStore)
+    const { node } = req.query; 
+    console.log(`1. Filter Requested: ${node || "ALL NODES"}`);
+
+    try {
+        let query = {};
+        if (node && node !== 'All') {
+            query = { nodeLocation: node };
+        }
+
+        const employees = await Employee.find(query);
+        console.log(`2. Database: Found ${employees.length} employees.`);
+        console.log("--- 🔴 [LOG] Request Completed ---\n");
+        
+        res.json(employees);
+
+    } catch (error) {
+        console.error("❌ [ERROR] DB Failure:", error.message);
+        res.status(500).json({ message: error.message });
+    }
 });
 
 app.listen(PORT, () => {
