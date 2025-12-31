@@ -21,7 +21,7 @@ function App() {
 
         {/* Right Side: Chat Bot (Takes 1 column) */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 h-[600px] flex flex-col sticky top-24">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 h-150 flex flex-col sticky top-24">
             <h2 className="text-xl font-semibold mb-4 text-slate-800">Smart Assistant</h2>
             <ChatInterface />
           </div>
