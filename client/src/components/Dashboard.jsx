@@ -26,3 +26,5 @@ const AnalyticsTable = ({ data }) => {
     </div>
   );
 };
+
+export default Dashboard; 
