@@ -7,7 +7,15 @@ const EmployeeSchema = new mongoose.Schema({
   profitGenerated: Number,
   avgDiscount: Number,
   rating: String,
-  nodeLocation: { type: String, default: "Main Counter" }
+
+  // Phase 2: Store / Node filter support
+  nodeLocation: {
+    type: String,
+    required: true,
+    enum: ["Main Counter", "Campus Store", "Kiosk A"],
+    default: "Main Counter"
+  }
 });
 
 module.exports = mongoose.model("Employee", EmployeeSchema);
+

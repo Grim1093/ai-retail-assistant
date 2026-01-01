@@ -6,7 +6,7 @@ const dotenv = require("dotenv");
 const mongoose = require('mongoose');
 
 // Note: Ensure these file names match exactly (Case Sensitive on Linux/Mac)
-const Employee = require("./models/Employee"); 
+const Employee = require("./models/employee"); 
 const Product = require("./models/Product");
 const connectDB = require("./config/db");
 
@@ -35,13 +35,59 @@ const importData = async () => {
 
     // 5. Prepare Employee Data
     console.log("[DEBUG] Preparing new Employee data...");
-    const employees = [
-      { name: "Employee A", itemsSold: 156, totalSalesValue: 4680, profitGenerated: 1404, avgDiscount: 8, rating: "Excellent" },
-      { name: "Employee B", itemsSold: 142, totalSalesValue: 4260, profitGenerated: 1278, avgDiscount: 10, rating: "Very Good" },
-      { name: "Employee C", itemsSold: 128, totalSalesValue: 3840, profitGenerated: 1152, avgDiscount: 12, rating: "Good" },
-      { name: "Employee D", itemsSold: 119, totalSalesValue: 3570, profitGenerated: 1071, avgDiscount: 15, rating: "Satisfactory" },
-      { name: "Employee E", itemsSold: 105, totalSalesValue: 3150, profitGenerated: 945, avgDiscount: 18, rating: "Needs Improvement" }
-    ];
+  const employees = [
+  // Team A: Main Counter
+  {
+    name: "Employee A (Main)",
+    itemsSold: 156,
+    totalSalesValue: 4680,
+    profitGenerated: 1404,
+    avgDiscount: 8,
+    rating: "Excellent",
+    nodeLocation: "Main Counter"
+  },
+  {
+    name: "Employee B (Main)",
+    itemsSold: 142,
+    totalSalesValue: 4260,
+    profitGenerated: 1278,
+    avgDiscount: 10,
+    rating: "Very Good",
+    nodeLocation: "Main Counter"
+  },
+
+  // Team B: Campus Store
+  {
+    name: "Employee C (Campus)",
+    itemsSold: 128,
+    totalSalesValue: 3840,
+    profitGenerated: 1152,
+    avgDiscount: 12,
+    rating: "Good",
+    nodeLocation: "Campus Store"
+  },
+  {
+    name: "Employee D (Campus)",
+    itemsSold: 119,
+    totalSalesValue: 3570,
+    profitGenerated: 1071,
+    avgDiscount: 15,
+    rating: "Satisfactory",
+    nodeLocation: "Campus Store"
+  },
+
+  // Team C: Kiosk
+  {
+    name: "Employee E (Kiosk)",
+    itemsSold: 105,
+    totalSalesValue: 3150,
+    profitGenerated: 945,
+    avgDiscount: 18,
+    rating: "Needs Improvement",
+    nodeLocation: "Kiosk A"
+  }
+];
+
 
     // 6. Insert Employees
     console.log(`[DEBUG] Inserting ${employees.length} Employees...`);
