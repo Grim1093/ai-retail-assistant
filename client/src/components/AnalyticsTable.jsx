@@ -30,11 +30,16 @@ const AnalyticsTable = ({ data }) => {
               <td className="py-3 px-4">${emp.totalSalesValue}</td>
               <td className="py-3 px-4 text-green-700 font-medium">${emp.profitGenerated}</td>
               <td className="py-3 px-4 text-blue-600">{emp.avgDiscount}%</td>
-              <td className={`py-3 px-4 font-bold ${
-                emp.rating === 'Excellent' ? 'text-green-600' : 
-                emp.rating === 'Needs Improvement' ? 'text-red-600' : 'text-yellow-600'
-              }`}>
-                {emp.rating}
+              <td className="py-3 px-4">
+                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                  emp.rating === 'Excellent'
+                    ? 'bg-green-100 text-green-800 border border-green-200'
+                    : emp.rating === 'Needs Improvement'
+                    ? 'bg-red-100 text-red-800 border border-red-200'
+                    : 'bg-yellow-100 text-yellow-800 border border-yellow-200'
+                }`}>
+                  {emp.rating}
+                </span>
               </td>
             </tr>
           ))}
