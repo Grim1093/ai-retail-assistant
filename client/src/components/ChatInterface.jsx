@@ -58,6 +58,11 @@ function ChatInterface() {
         onChange={(e) => setInput(e.target.value)} 
         placeholder="Ask about a product..."
         style={{ width: '80%' }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+          handleSend();
+          }
+        }}
       />
       <button onClick={handleSend} style={{ width: '18%' }}>Send</button>
     </div>
