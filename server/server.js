@@ -27,7 +27,6 @@ app.use(express.json());
 console.log("[DEBUG] Express Middleware Configured (CORS + JSON).");
 
 // 5. Initialize Gemini
-// We use a try/catch here just for the API client initialization
 let model;
 try {
     console.log("[DEBUG] Initializing Gemini Client...");
@@ -45,26 +44,27 @@ app.get('/', (req, res) => {
 });
 
 // ==========================================
-// PAWAN'S AI CHAT ROUTE (With Detailed Logs)
+// PAWAN'S AI CHAT ROUTE (With Memory + Logs)
 // ==========================================
 app.post('/api/chat', async (req, res) => {
-    console.log("\n--- [LOG] Smart Chat Request Received ---");
-    const { prompt } = req.body;
+    console.log("\n--- 🧠 [LOG] Enhanced Chat Request ---");
     
-    // LOG 1: Verify we received the user's question
+    // 1. Destructure 'history' along with 'prompt'
+    const { prompt, history } = req.body;
+    
+    // LOG 1: Verify we received the user's question and history
     console.log(`1. User Prompt: "${prompt}"`); 
+    console.log(`2. Memory: Received ${history ? history.length : 0} previous messages.`);
 
     try {
         // === STEP A: GATHER INTELLIGENCE ===
         // 1. Fetch Products
         const allProducts = await Product.find({});
-        // LOG 2: Verify Product DB connection
-        console.log(`2. Database: Retrieved ${allProducts.length} products.`); 
-
-        // 2. Fetch Employees (NEW!)
+        // 2. Fetch Employees
         const allEmployees = await Employee.find({});
-        // LOG 3: Verify Employee DB connection (Point of failure if missing imports)
-        console.log(`3. Database: Retrieved ${allEmployees.length} employees.`);
+        
+        // LOG 3: Verify DB connection
+        console.log(`3. Database: Retrieved ${allProducts.length} products and ${allEmployees.length} employees.`); 
 
         // === STEP B: FILTER RELEVANT CONTEXT ===
         const lowerPrompt = prompt.toLowerCase();
@@ -75,38 +75,40 @@ app.post('/api/chat', async (req, res) => {
             keywords.some(k => p.name.toLowerCase().includes(k))
         );
 
-        // Filter Employees
+        // Filter Employees (Using the "help/anyone" fix from Phase 3)
         const isAskingAboutStaff = ['employee', 'staff', 'sales', 'performance', 'rating', 'who', 'help', 'anyone'].some(k => lowerPrompt.includes(k));
         let relevantEmployees = [];
         
         if (isAskingAboutStaff) {
             relevantEmployees = allEmployees; // "Manager Mode": Compare everyone
         } else {
+            // "Specific Person Mode" OR context carry-over mode
+            // If the user asks "What about him?", we might not have a name keyword.
+            // We default to sending ALL employees if the history suggests we are talking about people.
+            // For simplicity in Phase 4, we send filtered matches OR empty.
             relevantEmployees = allEmployees.filter(e => 
                 keywords.some(k => e.name.toLowerCase().includes(k))
             );
         }
 
-        // LOG 4: Verify filtering logic (Did we find what the user asked for?)
+        // LOG 4: Verify filtering logic
         console.log(`4. Context Filtering: Found ${relevantProducts.length} products and ${relevantEmployees.length} employees relevant to query.`);
 
-        // === STEP C: CONSTRUCT THE "BRAIN" ===
+        // === STEP C: CONSTRUCT THE "BRAIN" (Data Context) ===
         let contextText = "";
         
-        // Add Product Data (Now includes HISTORY for price trends)
         if (relevantProducts.length > 0) {
             contextText += "--- PRODUCT DATA ---\n";
             contextText += relevantProducts.map(p => 
                 `- Product: ${p.name}\n` +
                 `  Current Price: $${p.currentPrice}\n` +
                 `  Stock: ${p.stockLevel}\n` +
-                `  History: ${JSON.stringify(p.priceHistory)}\n` + // <--- Key for "Price Trend" questions
+                `  History: ${JSON.stringify(p.priceHistory)}\n` +
                 `  Benefits: ${p.studentBenefits}`
             ).join("\n\n");
             contextText += "\n\n";
         }
 
-        // Add Employee Data (NEW!)
         if (relevantEmployees.length > 0) {
             contextText += "--- EMPLOYEE PERFORMANCE DATA ---\n";
             contextText += relevantEmployees.map(e => 
@@ -119,45 +121,55 @@ app.post('/api/chat', async (req, res) => {
         }
 
         if (contextText === "") {
-            contextText = "No specific database records matched. Answer based on general retail knowledge.";
+            contextText = "No specific database records matched the current keywords. Answer based on general knowledge or Conversation History.";
         }
         
-        // LOG 5: Verify the AI has data to work with
-        console.log("5. AI Context Constructed.");
+        console.log("5. Data Context Constructed.");
 
-        // === STEP D: THE FINAL PROMPT ===
+        // === STEP D: FORMAT HISTORY (The Upgrade) ===
+        // Convert array of objects to a script format: "User: ... \n AI: ..."
+        let conversationHistory = "";
+        if (history && history.length > 0) {
+            const recentHistory = history.slice(-5); // Keep last 5 turns to save tokens
+            conversationHistory = recentHistory.map(msg => 
+                `${msg.sender === 'user' ? 'User' : 'AI'}: ${msg.text}`
+            ).join("\n");
+        }
+        console.log("6. Conversation History Formatted.");
+
+        // === STEP E: THE FINAL PROMPT ===
         const finalPrompt = `
         SYSTEM INSTRUCTION:
-        You are a highly intelligent Retail Manager Assistant. 
-        You have access to the STORE DATA below.
+        You are a highly intelligent Retail Manager Assistant.
+        
+        SOURCE 1: STORE DATA (Database)
+        ${contextText}
+        
+        SOURCE 2: CONVERSATION HISTORY (Memory)
+        ${conversationHistory}
         
         STRICT BUSINESS RULES:
         1. LOW STOCK: If stock is < 5, explicitly warn the user.
-        2. DISCOUNTS: Only mention discounts listed in 'Benefits'.
-        3. STAFF ANALYSIS: If asked about employees, compare them based on Sales and Rating.
-        4. HISTORY: If asked about price trends, look at the 'History' array.
-        5. TRAINING: If an employee's rating is "Needs Improvement", suggest training.
-        
-        STORE DATA:
-        ${contextText}
+        2. STAFF ANALYSIS: If asked about employees, compare them based on Sales and Rating.
+        3. HISTORY: If asked about price trends, look at the 'History' array in Store Data.
+        4. CONTEXT: If the user asks "What is his rating?" or "How much is it?", look at the CONVERSATION HISTORY to identify the subject (Product or Employee).
         
         USER QUESTION:
         ${prompt}
         `;
 
-        // === STEP E: GENERATE RESPONSE ===
+        // === STEP F: GENERATE RESPONSE ===
         const result = await model.generateContent(finalPrompt);
         const response = await result.response;
         const aiAnswer = response.text();
 
-        // LOG 6: Success! The AI generated a response.
-        console.log("6. AI Response Generated.");
+        // LOG 7: Success!
+        console.log("7. AI Response Generated with Memory.");
         console.log("\n--- [LOG] Request Completed ---\n");
 
         res.json({ answer: aiAnswer });
 
     } catch (error) {
-        // ERROR LOG: This tells you exactly what crashed
         console.error(" [ERROR] AI Failure:", error.message);
         res.status(500).json({ error: "Internal Server Error" });
     }
@@ -167,8 +179,6 @@ const PORT = process.env.PORT || 5000;
 
 app.get('/api/employees', async (req, res) => {
     console.log("\n--- 🟢 [LOG] Employee Data Request ---");
-    
-    // Check if the frontend sent a specific node (e.g., ?node=CampusStore)
     const { node } = req.query; 
     console.log(`1. Filter Requested: ${node || "ALL NODES"}`);
 
@@ -181,9 +191,7 @@ app.get('/api/employees', async (req, res) => {
         const employees = await Employee.find(query);
         console.log(`2. Database: Found ${employees.length} employees.`);
         console.log("--- 🔴 [LOG] Request Completed ---\n");
-        
         res.json(employees);
-
     } catch (error) {
         console.error("❌ [ERROR] DB Failure:", error.message);
         res.status(500).json({ message: error.message });
