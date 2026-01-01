@@ -2,34 +2,32 @@ import { useState } from 'react';
 import API from '../api';
 
 function ChatInterface() {
-  // FIXED LINE BELOW:
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([
     { sender: 'ai', text: 'Hello! I am your Retail Assistant. Ask me about stock, prices, or discounts.' }
   ]);
-  const [isTyping, setIsTyping] = useState(false);
+  // 1. Correct State Definition
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSend = async () => {
     if (!input.trim()) return;
 
-    // 1. Add User Message to UI immediately
     const userMessage = { sender: 'user', text: input };
     setMessages((prev) => [...prev, userMessage]);
-    setInput(""); 
-    setIsTyping(true);
+    setInput("");
+
+    // 2. Fixed casing: setisLoading -> setIsLoading
+    setIsLoading(true); 
 
     try {
-      // 2. Send to Backend
       const response = await API.post('/chat', { prompt: userMessage.text });
-
-      // 3. Add AI Response to UI
       const aiMessage = { sender: 'ai', text: response.data.answer };
       setMessages((prev) => [...prev, aiMessage]);
     } catch (error) {
-      console.error("Chat Error:", error);
-      setMessages((prev) => [...prev, { sender: 'ai', text: "Sorry, I couldn't reach the server." }]);
+      setMessages((prev) => [...prev, { sender: 'ai', text: "Error connecting to AI." }]);
     } finally {
-      setIsTyping(false);
+      // 3. Fixed casing: setisLoading -> setIsLoading
+      setIsLoading(false); 
     }
   };
 
@@ -42,7 +40,8 @@ function ChatInterface() {
           </div>
         ))}
         
-        {isTyping && (
+        {/* 4. Fixed variable: isTyping -> isLoading */}
+        {isLoading && (
           <div className="flex justify-start mb-4 animate-pulse">
             <div className="bg-gray-200 rounded-lg p-3 text-gray-500 text-sm flex items-center gap-1">
               <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
