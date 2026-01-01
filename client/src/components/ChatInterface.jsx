@@ -41,16 +41,25 @@ function ChatInterface() {
             <strong>{msg.sender}:</strong> {msg.text}
           </div>
         ))}
-      </div>
-      {isTyping && (
-        <div className="flex justify-start mb-4 animate-pulse">
-          <div className="bg-gray-200 rounded-lg p-3 text-gray-500 text-sm flex items-center gap-1">
-            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+        
+        {isTyping && (
+          <div className="flex justify-start mb-4 animate-pulse">
+            <div className="bg-gray-200 rounded-lg p-3 text-gray-500 text-sm flex items-center gap-1">
+              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
+
+      <input 
+        value={input} 
+        onChange={(e) => setInput(e.target.value)} 
+        placeholder="Ask about a product..."
+        style={{ width: '80%' }}
+      />
+      <button onClick={handleSend} style={{ width: '18%' }}>Send</button>
     </div>
   );
 }
