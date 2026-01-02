@@ -1,3 +1,5 @@
+const User = require("./models/user");
+
 // server/server.js
 console.log("--- [DEBUG] Server Script Starting ---");
 
@@ -22,6 +24,8 @@ connectDB();
 
 // 4. Initialize App
 const app = express();
+app.use(express.json());
+
 app.use(cors());
 app.use(express.json());
 console.log("[DEBUG] Express Middleware Configured (CORS + JSON).");
@@ -197,6 +201,44 @@ app.get('/api/employees', async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+// ==========================================
+// AUTH LOGIN ROUTE (Phase-3)
+// ==========================================
+app.post("/api/auth/login", async (req, res) => {
+  console.log("\n--- 🔐 Login Attempt ---");
+
+  const { username, password } = req.body;
+
+  try {
+    const user = await User.findOne({ username });
+
+    if (!user) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid credentials" });
+    }
+
+    if (user.password !== password) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid credentials" });
+    }
+
+    res.json({
+      success: true,
+      user: {
+        id: user._id,
+        name: user.name,
+        username: user.username,
+        role: user.role
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
 
 app.listen(PORT, () => {
     console.log(`\n--- Server is successfully running on port ${PORT} ---`);

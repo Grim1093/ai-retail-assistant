@@ -1,3 +1,5 @@
+const User = require("./models/User");
+
 // server/seed.js
 console.log("--- [DEBUG] Starting Seed Script ---");
 
@@ -32,9 +34,29 @@ const importData = async () => {
     console.log("[DEBUG] Deleting old Products...");
     await Product.deleteMany();
     console.log("[DEBUG] ✔ Old Products Deleted.");
+    await User.deleteMany();
+    console.log("[DEBUG] ✔ Old Users Deleted.");
 
     // 5. Prepare Employee Data
     console.log("[DEBUG] Preparing new Employee data...");
+    const users = [
+  {
+    username: "manager1",
+    password: "manager123",
+    role: "manager",
+    name: "Store Manager"
+  },
+  {
+    username: "staff1",
+    password: "staff123",
+    role: "staff",
+    name: "Sales Staff"
+  }
+];
+
+await User.insertMany(users);
+console.log("Users data imported");
+
   const employees = [
   // Team A: Main Counter
   {
