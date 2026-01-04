@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useState, useEffect } from 'react';
 import AnalyticsTable from './AnalyticsTable';
 import API from '../api';
@@ -6,7 +7,12 @@ function Dashboard({ user, onLogout }) {
   const [selectedNode, setSelectedNode] = useState("All");
   const [employees, setEmployees] = useState([]);
 
-  // Fetch employee data (Nitish's Logic)
+  // SAFETY CHECK: Prevents the "Cannot read property of undefined" error
+  if (!user) {
+    return <div className="p-10 text-center text-gray-500">Loading User Profile...</div>;
+  }
+
+  // Fetch employee data
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
@@ -21,7 +27,7 @@ function Dashboard({ user, onLogout }) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Upgraded Header Section */}
+      {/* Header Section */}
       <header className="bg-blue-800 text-white p-4 shadow-md flex justify-between items-center mb-6">
         <div className="flex items-center gap-4">
           <h1 className="text-2xl font-bold flex items-center gap-2">
@@ -67,11 +73,13 @@ function Dashboard({ user, onLogout }) {
       <main className="p-4">
         {/* Role-Based Content Access */}
         {user.role === 'manager' ? (
+          // MANAGER VIEW: Show Table
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
             <h2 className="text-xl font-semibold mb-4 text-slate-800">Store Performance</h2>
             <AnalyticsTable data={employees} />
           </div>
         ) : (
+          // STAFF VIEW: Show Warning
           <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded shadow-sm">
             <div className="flex items-center">
               <div className="shrink-0">

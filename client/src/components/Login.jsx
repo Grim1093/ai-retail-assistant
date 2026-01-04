@@ -5,21 +5,46 @@ function Login({ onLogin }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [debugInfo, setDebugInfo] = useState(""); // New: To show technical details
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setDebugInfo("");
     setIsLoading(true);
+
     try {
-      // Calling the backend login logic
+      console.log("Attempting login with:", username, password);
+      // Calling the backend
       const response = await API.post('/auth/login', { username, password });
+      
+      console.log("Server Response:", response.data);
+
       if (response.data.success) {
         onLogin(response.data.user);
+      } else {
+        setError("Login failed: " + (response.data.message || "Unknown error"));
       }
+
     } catch (err) {
-      console.error("Login Error:", err);
-      setError("Invalid credentials. Try 'admin' / '123'");
+      console.error("Login Error Details:", err);
+      
+      // 1. Check if Server is offline (Network Error)
+      if (err.message === "Network Error") {
+        setError("❌ Server is NOT running.");
+        setDebugInfo("Please open a new terminal, go to the 'server' folder, and run: npm start");
+      } 
+      // 2. Check if Password is wrong (401 Error)
+      else if (err.response && err.response.status === 401) {
+        setError("❌ Invalid Username or Password");
+        setDebugInfo("Try: admin / 123");
+      }
+      // 3. Other Errors
+      else {
+        setError("❌ Error: " + err.message);
+        setDebugInfo(JSON.stringify(err.response?.data || "Check Console (F12)"));
+      }
     } finally {
       setIsLoading(false);
     }
@@ -32,9 +57,11 @@ function Login({ onLogin }) {
           Retail Assistant Login
         </h2>
         
+        {/* ERROR BOX */}
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4 text-sm">
-            {error}
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 text-sm">
+            <p className="font-bold">{error}</p>
+            <p className="text-xs mt-1 text-red-600 font-mono">{debugInfo}</p>
           </div>
         )}
 
@@ -66,7 +93,7 @@ function Login({ onLogin }) {
               isLoading ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'
             }`}
           >
-            {isLoading ? 'Signing In...' : 'Sign In'}
+            {isLoading ? 'Connecting...' : 'Sign In'}
           </button>
         </form>
         <p className="mt-4 text-center text-xs text-gray-500">
