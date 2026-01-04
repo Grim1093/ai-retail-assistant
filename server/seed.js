@@ -41,14 +41,14 @@ const importData = async () => {
     console.log("[DEBUG] Preparing new Employee data...");
     const users = [
   {
-    username: "manager1",
-    password: "manager123",
+    username: "admin",
+    password: "123",
     role: "manager",
     name: "Store Manager"
   },
   {
-    username: "staff1",
-    password: "staff123",
+    username: "staff",
+    password: "123",
     role: "staff",
     name: "Sales Staff"
   }
