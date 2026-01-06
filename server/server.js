@@ -1,7 +1,8 @@
 const User = require("./models/user");
 
 // server/server.js
-console.log("--- [DEBUG] Server Script Starting ---");
+const logger = require('./utils/logger');
+logger.info("--- Server Script Starting ---");
 
 // 1. Load Dependencies (Global Scope)
 const express = require('express');
@@ -11,39 +12,40 @@ const connectDB = require('./config/db');
 const Product = require('./models/Product');
 const Employee = require('./models/Employee');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const httpLogger = require('./middleware/httpLogger');
 
-console.log("[DEBUG] All dependencies loaded successfully.");
+logger.info("All dependencies loaded successfully.");
 
 // 2. Configure Environment
 dotenv.config();
-console.log("[DEBUG] Environment variables configured.");
+logger.info("Environment variables configured.");
 
 // 3. Connect to Database
-console.log("[DEBUG] Initializing DB connection...");
+logger.info("Initializing DB connection...");
 connectDB();
 
 // 4. Initialize App
 const app = express();
+app.use(httpLogger);
 app.use(express.json());
 
 app.use(cors());
-app.use(express.json());
-console.log("[DEBUG] Express Middleware Configured (CORS + JSON).");
+logger.info("Express Middleware Configured (CORS + JSON).");
 
 // 5. Initialize Gemini
 let model;
 try {
-    console.log("[DEBUG] Initializing Gemini Client...");
+    logger.info("Initializing Gemini Client...");
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-    console.log("[DEBUG] Gemini Model 'gemini-2.5-flash' ready.");
+    logger.info("Gemini Model 'gemini-2.5-flash' ready.");
 } catch (err) {
-    console.error("[CRITICAL] Failed to initialize Gemini:", err.message);
+    logger.error("Failed to initialize Gemini:", { error: err.message });
 }
 
 // 6. Health Check Route
 app.get('/', (req, res) => {
-    console.log("[DEBUG] Health Check Triggered");
+    // Logging handled by middleware
     res.send('API is running...');
 });
 
@@ -51,14 +53,14 @@ app.get('/', (req, res) => {
 // PAWAN'S AI CHAT ROUTE (With Memory + Logs)
 // ==========================================
 app.post('/api/chat', async (req, res) => {
-    console.log("\n--- 🧠 [LOG] Enhanced Chat Request ---");
+    logger.info("--- Enhanced Chat Request ---");
     
     // 1. Destructure 'history' along with 'prompt'
     const { prompt, history } = req.body;
     
     // LOG 1: Verify we received the user's question and history
-    console.log(`1. User Prompt: "${prompt}"`); 
-    console.log(`2. Memory: Received ${history ? history.length : 0} previous messages.`);
+    logger.trace("Step 1", "Received User Prompt", { prompt });
+    logger.trace("Step 2", "Memory Received", { messageCount: history ? history.length : 0 });
 
     try {
         // === STEP A: GATHER INTELLIGENCE ===
@@ -68,7 +70,7 @@ app.post('/api/chat', async (req, res) => {
         const allEmployees = await Employee.find({});
         
         // LOG 3: Verify DB connection
-        console.log(`3. Database: Retrieved ${allProducts.length} products and ${allEmployees.length} employees.`); 
+        logger.trace("Step 3", "Database Retrieval", { products: allProducts.length, employees: allEmployees.length });
 
         // === STEP B: FILTER RELEVANT CONTEXT ===
         const lowerPrompt = prompt.toLowerCase();
@@ -96,7 +98,7 @@ app.post('/api/chat', async (req, res) => {
         }
 
         // LOG 4: Verify filtering logic
-        console.log(`4. Context Filtering: Found ${relevantProducts.length} products and ${relevantEmployees.length} employees relevant to query.`);
+        logger.trace("Step 4", "Context Filtering", { relevantProducts: relevantProducts.length, relevantEmployees: relevantEmployees.length });
 
         // === STEP C: CONSTRUCT THE "BRAIN" (Data Context) ===
         let contextText = "";
@@ -128,7 +130,7 @@ app.post('/api/chat', async (req, res) => {
             contextText = "No specific database records matched the current keywords. Answer based on general knowledge or Conversation History.";
         }
         
-        console.log("5. Data Context Constructed.");
+        logger.trace("Step 5", "Data Context Constructed");
 
         // === STEP D: FORMAT HISTORY (The Upgrade) ===
         // Convert array of objects to a script format: "User: ... \n AI: ..."
@@ -139,7 +141,7 @@ app.post('/api/chat', async (req, res) => {
                 `${msg.sender === 'user' ? 'User' : 'AI'}: ${msg.text}`
             ).join("\n");
         }
-        console.log("6. Conversation History Formatted.");
+        logger.trace("Step 6", "Conversation History Formatted");
 
         // === STEP E: THE FINAL PROMPT ===
         const finalPrompt = `
@@ -168,13 +170,13 @@ app.post('/api/chat', async (req, res) => {
         const aiAnswer = response.text();
 
         // LOG 7: Success!
-        console.log("7. AI Response Generated with Memory.");
-        console.log("\n--- [LOG] Request Completed ---\n");
+        logger.trace("Step 7", "AI Response Generated with Memory");
+        logger.info("--- Request Completed ---");
 
         res.json({ answer: aiAnswer });
 
     } catch (error) {
-        console.error(" [ERROR] AI Failure:", error.message);
+        logger.error("AI Failure:", { error: error.message });
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
@@ -182,9 +184,9 @@ app.post('/api/chat', async (req, res) => {
 const PORT = process.env.PORT || 5000;
 
 app.get('/api/employees', async (req, res) => {
-    console.log("\n--- 🟢 [LOG] Employee Data Request ---");
+    logger.info("--- Employee Data Request ---");
     const { node } = req.query; 
-    console.log(`1. Filter Requested: ${node || "ALL NODES"}`);
+    logger.info(`Filter Requested: ${node || "ALL NODES"}`);
 
     try {
         let query = {};
@@ -193,11 +195,11 @@ app.get('/api/employees', async (req, res) => {
         }
 
         const employees = await Employee.find(query);
-        console.log(`2. Database: Found ${employees.length} employees.`);
-        console.log("--- 🔴 [LOG] Request Completed ---\n");
+        logger.info(`Database: Found ${employees.length} employees.`);
+        logger.info("--- Request Completed ---");
         res.json(employees);
     } catch (error) {
-        console.error("❌ [ERROR] DB Failure:", error.message);
+        logger.error("DB Failure:", { error: error.message });
         res.status(500).json({ message: error.message });
     }
 });
@@ -205,7 +207,7 @@ app.get('/api/employees', async (req, res) => {
 // AUTH LOGIN ROUTE (Phase-3)
 // ==========================================
 app.post("/api/auth/login", async (req, res) => {
-  console.log("\n--- 🔐 Login Attempt ---");
+  logger.info("--- Login Attempt ---");
 
   const { username, password } = req.body;
 
@@ -234,13 +236,13 @@ app.post("/api/auth/login", async (req, res) => {
       }
     });
   } catch (err) {
-    console.error(err);
+    logger.error("Login Error:", { error: err });
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
 
 
 app.listen(PORT, () => {
-    console.log(`\n--- Server is successfully running on port ${PORT} ---`);
-    console.log("Waiting for requests...\n");
+    logger.info(`--- Server is successfully running on port ${PORT} ---`);
+    logger.info("Waiting for requests...");
 });
