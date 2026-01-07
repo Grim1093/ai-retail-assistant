@@ -1,113 +1,133 @@
-# **🛒 AI Retail Assistant**
+# 🛍️ AI Retail Assistant (Imagine Cup Edition)
 
-**A smart, AI-powered dashboard for retail staff.**
+**A Cloud-Native, Multimodal AI Dashboard for Retail Management.**
 
-This application empowers frontline employees to instantly query product details, prices, and discounts using natural language, as well as track employee performance metrics through a real-time dashboard.
+This application empowers retail staff to query inventory, upload invoices for automatic analysis, and track performance metrics in real-time. It is built as a Hybrid AI solution, combining the generative power of Google Gemini with the analytical precision of Microsoft Azure AI Services.
 
-Status: Built for the Microsoft Retail AI Hackathon.  
-Current Version: Stable with AI Chat (Gemini Integration) & Analytics Dashboard.
+**🚀 Status:** Imagine Cup Ready
+**☁️ Deployment:** Azure App Service (Planned) | Azure Cosmos DB (Live)
 
-## **🏆 Key Achievements & Features**
+## 🏆 Key Innovations & Features
 
-We have successfully implemented the following features:
+We have transformed a simple chatbot into a robust, enterprise-grade assistant:
 
-### **1\. 🤖 Context-Aware AI Chat Assistant**
+### 1. 🧠 Resilient Hybrid AI (Gemini + Azure)
+*   **Auto-Fallback Architecture:** The system prioritizes the experimental Gemini 2.5 Flash for high-intelligence reasoning. If the API is overloaded (503), it automatically switches to the stable Gemini 1.5 Flash without user interruption.
+*   **Multimodal RAG (Retrieval-Augmented Generation):** Users can upload PDFs or Images (e.g., invoices, supply lists). The system reads them using Azure Document Intelligence and cross-references the data with our database.
+*   **Smart Keyword Extraction:** Uses Azure AI Language to extract precise product keywords from natural language queries, ensuring accurate database filtering.
 
-* **Powered by Google Gemini 2.5 Flash:** We successfully migrated from OpenAI to Google's Gemini API for faster, cost-effective inference.  
-* **RAG (Retrieval-Augmented Generation):** The AI doesn't just "guess"; it actively searches our **MongoDB inventory** to find relevant product data (Price, Stock, Discounts) and answers user questions based *only* on that verified context.  
-* **Natural Language Processing:** Staff can ask questions like *"Do we have the Hoodie in stock?"* or *"What is the student discount for the laptop?"* and get accurate, data-backed responses.
+### 2. ☁️ Cloud-Native Database (Azure Cosmos DB)
+*   **Migrated to Azure:** We successfully migrated from a local MongoDB to Azure Cosmos DB for MongoDB (vCore).
+*   **Performance:** Hosted in the Southeast Asia region for low-latency access alongside our AI services.
+*   **Secure:** Protected by Azure Firewall with IP whitelisting.
 
-### **2\. 📊 Employee Performance Dashboard**
+### 3. 📂 Enterprise File Handling
+*   **Azure Blob Storage:** All uploaded files are securely stored in the cloud using Azure Blob Storage (uploads container).
+*   **Paperclip UI:** A seamless "Chat with File" experience in the frontend allows users to upload local documents instantly.
 
-* **Real-Time Analytics:** Visualizes sales data, profit margins, and customer ratings for every employee in a clean tabular format.  
-* **Dynamic Data:** Fetches live data from the backend (/api/employees) rather than using static hardcoded lists.  
-* **Clean UI:** Built with **Tailwind CSS v4** for a modern, responsive interface.
+### 4. 📊 Real-Time Analytics Dashboard
+*   **Live Metrics:** Visualizes Sales, Profit Margins, and Employee Ratings fetched directly from Cosmos DB.
+*   **Modern UI:** Built with React + Tailwind CSS v4 for a responsive, professional interface.
 
-### **3\. 🛠️ Robust Backend Architecture**
-
-* **Centralized Server Logic:** Clean separation of concerns with a dedicated server.js entry point.  
-* **Database Seeding:** Automated script (seed.js) to populate the database with realistic demo data for products and employees.
-
-## **🚀 Tech Stack**
+## 🚀 Tech Stack
 
 | Component | Technology |
-| :---- | :---- |
-| **Frontend** | React (Vite), Tailwind CSS v4, Axios |
-| **Backend** | Node.js, Express.js |
-| **Database** | MongoDB (Atlas), Mongoose |
-| **AI Engine** | Google Gemini API (gemini-2.5-flash) |
+| :--- | :--- |
+| **Frontend** | React (Vite), Tailwind CSS v4, Axios, Lucide React |
+| **Backend** | Node.js, Express.js, Multer |
+| **Database** | Azure Cosmos DB (MongoDB API - vCore) |
+| **Storage** | Azure Blob Storage |
+| **AI Vision** | Azure Document Intelligence (OCR) |
+| **AI Analysis** | Azure AI Language (Key Phrase Extraction) |
+| **Generative AI** | Google Gemini (2.5 Flash + 1.5 Flash Auto-Fallback) |
 
-## **🛠️ Setup Instructions**
+## 🛠️ Setup Instructions
 
-Follow these steps to get the project running locally.
+Follow these steps to run the Hybrid AI system locally.
 
-### **1\. Prerequisites**
+### 1. Prerequisites
+*   Node.js installed.
+*   Azure Subscription (for Cosmos DB, Storage, and AI Services).
+*   Google Gemini API Key.
 
-* Node.js installed on your machine.  
-* A MongoDB Atlas Account (or local MongoDB).  
-* A Google Gemini API Key (Get it from Google AI Studio).
+### 2. Backend Setup
 
-### **2\. Backend Setup**
-
-The backend handles the AI logic and database connections.
-
-\# 1\. Navigate to the server folder  
+```bash
+# 1. Navigate to the server folder
 cd server
 
-\# 2\. Install dependencies  
+# 2. Install dependencies (Includes new Azure SDKs)
 npm install
 
-\# 3\. Create a .env file  
-\# Create a file named ".env" in the server folder and add:  
-PORT=5000  
-MONGO\_URI=mongodb+srv://\<your-username\>:\<password\>@cluster.mongodb.net/retail-db  
-GEMINI\_API\_KEY=AIzaSy...
+# 3. Create a .env file
+# Create a file named ".env" in the server folder and add:
+PORT=5000
 
-\# 4\. Seed the Database (Important for first run\!)  
-\# This populates MongoDB with dummy products and employees.  
-node seed.js
+# --- DATABASE (Azure Cosmos DB) ---
+MONGO_URI=mongodb+srv://<admin>:<password>@<your-cosmos-db>.mongocluster.cosmos.azure.com/?tls=true&authMechanism=SCRAM-SHA-256&retrywrites=false&maxIdleTimeMS=120000
 
-\# 5\. Start the Server  
-npm start  
-\# OR for development mode (auto-restart on save):  
-npm run dev
+# --- GOOGLE AI ---
+GEMINI_API_KEY=AIzaSy...
 
-*Success Output:* Server is successfully running on port 5000
+# --- AZURE SERVICES ---
+AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=https;AccountName=...
+AZURE_LANGUAGE_ENDPOINT=https://<your-resource>.cognitiveservices.azure.com/
+AZURE_LANGUAGE_KEY=<your-key>
+AZURE_DOCUMENT_ENDPOINT=https://<your-resource>.cognitiveservices.azure.com/
+AZURE_DOCUMENT_KEY=<your-key>
 
-### **3\. Frontend Setup**
+# 4. Seed the Database (CRITICAL!)
+# This connects to Azure Cosmos DB and populates it with Products, Employees, and the Admin User.
+node seed_azure.js
 
-The frontend is the user interface for the store staff.
+# 5. Start the Server
+npm start
+```
 
-\# 1\. Open a new terminal and navigate to client  
+**Success Output:** `Server is successfully running on port 5000`
+
+### 3. Frontend Setup
+
+```bash
+# 1. Open a new terminal and navigate to client
 cd client
 
-\# 2\. Install dependencies  
+# 2. Install dependencies
 npm install
 
-\# 3\. Start the React App  
+# 3. Start the React App
 npm run dev
+```
 
-*Access the App at:* http://localhost:5173
+**Access the App at:** http://localhost:5173
 
-## **🔌 API Reference**
+## 🔌 API Reference
 
-**Base URL:** http://localhost:5000/api
+**Base URL:** `http://localhost:5000/api`
 
 | Method | Endpoint | Description |
-| :---- | :---- | :---- |
-| **POST** | /chat | Accepts a { prompt }, searches DB for context (RAG), and returns an AI answer. |
-| **GET** | /employees | Returns a list of all employees and their performance metrics. |
+| :--- | :--- | :--- |
+| **POST** | `/auth/login` | Authenticates the user (Admin/Manager). |
+| **POST** | `/chat` | Hybrid Route: Detects intent, handles file URLs (Document Intelligence), queries Cosmos DB, and generates an AI response. |
+| **POST** | `/upload` | Uploads a local file to Azure Blob Storage and returns a public URL. |
+| **GET** | `/employees` | Fetches performance metrics from Cosmos DB. |
 
-## **👥 Team Roles**
+## 👥 Team Roles
 
-* **Pawan (Lead):** Backend Architecture, AI Integration (Gemini), Server Logic.  
-* **Chetan:** Database Design (MongoDB), Schema Modeling, Data Seeding.  
-* **Parth:** Frontend Design (UI/UX), Tailwind Styling, Component Layout.  
-* **Nitish:** Frontend Logic, API Integration (Axios), State Management.
+*   **Pawan (Team Lead):** Cloud Architecture (Azure Cosmos/Blob), Hybrid AI Logic (Gemini + Azure Services), Backend Resilience & Auto-Fallback.
+*   **Chetan:** Database Management, Schema Modeling, Data Seeding Scripts (`seed_azure.js`).
+*   **Parth:** Frontend UX/Design, Responsive Layouts, Dashboard Visualization.
+*   **Nitish:** Client-Side Logic, API Integration, State Management.
 
-## **🐛 Troubleshooting**
+## 🐛 Troubleshooting
 
-* **"MongoDB Connection Error":** Check if your IP is whitelisted in MongoDB Atlas or if the MONGO\_URI in .env is correct.  
-* **"Gemini Error 404":** Ensure you are using the correct model name in server.js (currently set to gemini-2.5-flash) and that your API key is valid.  
-* **"No products found":** You must run node seed.js in the server folder at least once to populate the database.  
-* **Styles not loading?** Ensure @import "tailwindcss"; is present in client/src/index.css.
+*   **"Database Connection Failed / ETIMEDOUT":**
+    *   Go to Azure Portal -> Cosmos DB -> Networking.
+    *   Click "Add current client IP address" to whitelist your connection.
+*   **"White Screen after Login":**
+    *   Ensure you ran `node seed_azure.js` (not the old `seed.js`). The new script includes required fields like `profitGenerated`.
+*   **"Azure Upload Error":**
+    *   Check your `AZURE_STORAGE_CONNECTION_STRING` in `.env`.
+    *   Ensure your Blob Container (`uploads`) has Anonymous Access enabled (Blob level).
+*   **"AI Model Overloaded (503)":**
+    *   No action needed! The system will automatically switch to the backup model (`gemini-1.5-flash`).
