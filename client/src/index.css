@@ -1,5 +1,24 @@
 @import "tailwindcss";
 
+/* -------------------------------------------------------------------------- */
+/* GLOBAL VARIABLES                                                           */
+/* -------------------------------------------------------------------------- */
+:root {
+  /* --- Login Theme: Light Greenish + Bold White + Sky Blue --- */
+  --login-bg-start: #e8f5e9;   /* Light Greenish */
+  --login-bg-mid: #ffffff;     /* Bold White */
+  --login-accent: #87ceeb;     /* Sky Blue */
+  --login-text: #2c3e50;       /* Dark Text */
+  
+  /* --- App Theme: Dark Blue + Purple Tone + Goldenish --- */
+  --app-bg-dark: #0f172a;      /* Dark Blue */
+  --app-bg-purple: #2d1b4e;    /* Purple Light Tone */
+  --app-accent: #ffd700;       /* Goldenish */
+  --app-text: #e2e8f0;         /* Light Text */
+  
+  --hover-speed: 0.3s;
+}
+
 @layer utilities {
   @keyframes aurora {
     0% { background-position: 0% 50%; }
@@ -11,4 +30,127 @@
     background-size: 200% 200%;
     animation: aurora 15s ease infinite;
   }
+}
+
+/* -------------------------------------------------------------------------- */
+/* LOGIN PAGE STYLES                                                          */
+/* -------------------------------------------------------------------------- */
+.login-container {
+  min-height: 100vh;
+  width: 100%;
+  background: linear-gradient(135deg, var(--login-bg-start) 0%, var(--login-bg-mid) 50%, var(--login-accent) 100%);
+  background-size: 200% 200%;
+  animation: aurora 15s ease infinite;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  color: var(--login-text);
+}
+
+.login-container::before {
+  content: '';
+  position: absolute;
+  top: -10%;
+  right: -10%;
+  width: 50vw;
+  height: 50vw;
+  background: radial-gradient(circle, rgba(135, 206, 235, 0.2) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: floatShape 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.login-card {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 2.5rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(135, 206, 235, 0.3);
+  backdrop-filter: blur(10px);
+  max-width: 400px;
+  width: 100%;
+  z-index: 10;
+  transition: all var(--hover-speed) ease;
+}
+
+.login-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(135, 206, 235, 0.3);
+  border-color: var(--login-accent);
+}
+
+.login-btn {
+  background: linear-gradient(90deg, #4caf50, var(--login-accent));
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.login-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(135, 206, 235, 0.5);
+}
+
+/* -------------------------------------------------------------------------- */
+/* MAIN APP STYLES                                                            */
+/* -------------------------------------------------------------------------- */
+.app-container {
+  min-height: 100vh;
+  width: 100%;
+  background: radial-gradient(circle at 10% 20%, var(--app-bg-purple) 0%, var(--app-bg-dark) 80%);
+  color: var(--app-text);
+  position: relative;
+  overflow-x: hidden;
+}
+
+.app-container::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background-image: radial-gradient(rgba(255, 215, 0, 0.15) 1px, transparent 1px);
+  background-size: 50px 50px;
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app-card {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 215, 0, 0.1);
+  border-radius: 16px;
+  padding: 20px;
+  backdrop-filter: blur(12px);
+  transition: all var(--hover-speed) ease;
+  position: relative;
+  z-index: 1;
+}
+
+.app-card:hover {
+  border-color: rgba(255, 215, 0, 0.5);
+  box-shadow: 0 0 25px rgba(255, 215, 0, 0.15);
+  transform: translateY(-3px);
+}
+
+.gold-text {
+  background: linear-gradient(90deg, #fff, var(--app-accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+/* -------------------------------------------------------------------------- */
+/* ANIMATIONS                                                                 */
+/* -------------------------------------------------------------------------- */
+@keyframes floatShape {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
 }

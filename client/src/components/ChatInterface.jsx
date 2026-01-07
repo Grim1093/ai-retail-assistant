@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import API from '../api';
+import { Send, Bot, User, Loader2, Sparkles } from 'lucide-react';
 
 function ChatInterface() {
   const [input, setInput] = useState("");
@@ -22,23 +23,20 @@ function ChatInterface() {
   const handleSend = async () => {
     if (!input.trim()) return;
 
-    // 1. Create the user message object
+    // 1. Create user message
     const userMessage = { sender: 'user', text: input };
     
-    // 2. Optimistically update the UI (Show user message immediately)
-    // We capture this new state to send to the server
+    // 2. Optimistic Update
     const updatedHistory = [...messages, userMessage];
-    
     setMessages(updatedHistory);
     setInput("");
     setIsLoading(true);
 
     try {
-      // 3. SEND HISTORY TO SERVER (The Phase 4 Upgrade)
-      // We send 'prompt' for the current question AND 'history' for context
+      // 3. API Call
       const response = await API.post('/chat', { 
         prompt: userMessage.text,
-        history: updatedHistory // <--- This enables the "Elephant Memory"
+        history: updatedHistory 
       });
 
       const aiMessage = { sender: 'ai', text: response.data.answer };
@@ -53,70 +51,74 @@ function ChatInterface() {
   };
 
   return (
-    <div className="flex flex-col h-[600px] border border-gray-300 rounded-lg shadow-lg bg-white mt-5 max-w-2xl mx-auto">
+    // FULL HEIGHT CONTAINER (No borders, handled by parent)
+    <div className="flex flex-col h-full text-sm">
       
-      {/* Header */}
-      <div className="bg-blue-600 text-white p-4 rounded-t-lg font-bold">
-        Retail Assistant AI
-      </div>
-
-      {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+      {/* --- MESSAGES AREA --- */}
+      <div className="flex-1 overflow-y-auto pr-2 space-y-4 custom-scrollbar">
         {messages.map((msg, index) => (
           <div 
             key={index} 
-            className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+            className={`flex gap-3 ${msg.sender === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
           >
-            <div 
-              className={`max-w-[80%] p-3 rounded-lg shadow-sm ${
-                msg.sender === 'user' 
-                  ? 'bg-blue-500 text-white rounded-br-none' 
-                  : 'bg-white text-gray-800 border border-gray-200 rounded-bl-none'
-              }`}
-            >
-              <strong className="block text-xs mb-1 opacity-70">
-                {msg.sender === 'user' ? 'You' : 'Assistant'}
-              </strong>
+            {/* Avatar */}
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+              msg.sender === 'user' 
+                ? 'bg-amber-500/20 text-amber-500 border border-amber-500/30' 
+                : 'bg-slate-700/50 text-slate-400 border border-white/5'
+            }`}>
+              {msg.sender === 'user' ? <User size={14} /> : <Bot size={14} />}
+            </div>
+
+            {/* Bubble */}
+            <div className={`max-w-[85%] p-3 rounded-2xl ${
+              msg.sender === 'user' 
+                ? 'bg-amber-500 text-slate-900 rounded-tr-none font-medium shadow-lg shadow-amber-500/10' 
+                : 'bg-slate-800/80 text-slate-200 border border-white/10 rounded-tl-none shadow-md'
+            }`}>
               {msg.text}
             </div>
           </div>
         ))}
-        
+
         {/* Loading Indicator */}
         {isLoading && (
-          <div className="flex justify-start">
-            <div className="bg-gray-200 rounded-lg p-3 rounded-bl-none text-gray-500 text-sm flex items-center gap-2">
-              <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
-              <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-              <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-            </div>
+          <div className="flex gap-3">
+             <div className="w-8 h-8 rounded-full bg-slate-700/50 text-slate-400 border border-white/5 flex items-center justify-center shrink-0">
+               <Sparkles size={14} className="animate-pulse" />
+             </div>
+             <div className="bg-slate-800/80 border border-white/10 p-3 rounded-2xl rounded-tl-none text-slate-400 flex items-center gap-2">
+               <Loader2 className="animate-spin h-3 w-3" />
+               <span className="text-xs">Thinking...</span>
+             </div>
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Area */}
-      <div className="p-4 bg-white border-t border-gray-200 rounded-b-lg flex gap-2">
+      {/* --- INPUT AREA --- */}
+      <div className="mt-4 relative">
         <input 
-          className="flex-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full bg-slate-900/50 border border-slate-700 text-slate-200 pl-4 pr-12 py-3 rounded-xl focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 placeholder:text-slate-600 transition-all shadow-inner"
           value={input} 
           onChange={(e) => setInput(e.target.value)} 
-          placeholder="Ask about products, staff, or sales..."
+          placeholder="Type your question..."
           onKeyDown={(e) => {
             if (e.key === 'Enter') handleSend();
           }}
           disabled={isLoading}
         />
+        
         <button 
           onClick={handleSend} 
           disabled={isLoading}
-          className={`px-4 py-2 rounded-md font-medium text-white transition-colors ${
-            isLoading 
-              ? 'bg-gray-400 cursor-not-allowed' 
-              : 'bg-blue-600 hover:bg-blue-700'
+          className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg transition-all ${
+            isLoading || !input.trim()
+              ? 'text-slate-600 cursor-not-allowed' 
+              : 'bg-amber-500 text-slate-900 hover:scale-105 shadow-lg shadow-amber-500/20'
           }`}
         >
-          Send
+          <Send size={16} />
         </button>
       </div>
     </div>
