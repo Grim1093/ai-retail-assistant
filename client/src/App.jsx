@@ -1,48 +1,74 @@
-import { useState } from 'react'  // <--- Import the State tool
-import Dashboard from './components/Dashboard'
-import ChatInterface from './components/ChatInterface' // Optional, if you have this
-import Login from './components/Login'
+import { useState } from 'react';
+import Dashboard from './components/Dashboard';
+import ChatInterface from './components/ChatInterface';
+import Login from './components/Login';
 
 function App() {
-  // 1. GLOBAL USER STATE (The Brain)
-  // null = no one is logged in
-  // object = { name: "Chetan", role: "manager" }
-  const [user, setUser] = useState(null); 
+  const [user, setUser] = useState(null);
 
-  // Helper function to update the brain when someone logs in
   const handleLogin = (userData) => {
     setUser(userData);
   };
 
-  // Helper function to clear the brain when someone logs out
   const handleLogout = () => {
     setUser(null);
-  };  // ... (rendering logic comes next)
+  };
 
-  // If no user is logged in, show the Login screen
   if (!user) {
     return <Login onLogin={handleLogin} />;
   }
 
-  // IF LOGGED IN -> SHOW DASHBOARD
-  // We pass 'user' (so dashboard knows who it is) and 'handleLogout'
+  // USE THE NEW CLASS 'app-container' FROM INDEX.CSS
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
-      <main className="max-w-7xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div className="app-container font-sans flex flex-col">
+      
+      {/* HEADER: Sticky with Gold Text */}
+      <header className="sticky top-0 z-50 px-8 py-4 border-b border-white/5 bg-slate-900/50 backdrop-blur-md flex justify-between items-center">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-300 to-amber-500 shadow-lg shadow-amber-500/20"></div>
+          <h1 className="text-2xl font-bold tracking-tight">
+            <span className="gold-text">AI Retail</span> <span className="text-slate-400">Assistant</span>
+          </h1>
+        </div>
         
-        {/* Pass the User and Logout tool to the Dashboard */}
+        <div className="flex items-center gap-4">
+          <div className="text-right hidden sm:block">
+            <p className="text-sm text-slate-300 font-medium">{user.username || 'User'}</p>
+            <p className="text-xs text-amber-500/80 uppercase tracking-widest">{user.role || 'Staff'}</p>
+          </div>
+          <button 
+            onClick={handleLogout}
+            className="px-5 py-2 rounded-xl border border-amber-500/30 text-amber-100 hover:bg-amber-500/10 hover:border-amber-500/60 transition-all text-sm font-semibold shadow-lg shadow-amber-900/20"
+          >
+            Logout
+          </button>
+        </div>
+      </header>
+
+      {/* MAIN LAYOUT */}
+      <main className="flex-1 max-w-[1600px] w-full mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        {/* LEFT COLUMN: Dashboard */}
         <div className="lg:col-span-2 space-y-6">
-          <Dashboard user={user} onLogout={handleLogout} />
+           <Dashboard user={user} />
         </div>
 
-        {/* Optional: Chat Interface */}
+        {/* RIGHT COLUMN: Chat (Sticky Sidebar) */}
         <div className="lg:col-span-1">
-           {/* ChatInterface code here if needed */}
-           <ChatInterface user={user} />
+           <div className="app-card h-[calc(100vh-140px)] sticky top-28 flex flex-col overflow-hidden">
+             <div className="mb-4 pb-4 border-b border-white/5">
+                <h3 className="gold-text text-lg font-bold">AI Companion</h3>
+                <p className="text-xs text-slate-400">Ask about inventory, sales, or trends.</p>
+             </div>
+             <div className="flex-1 overflow-hidden relative">
+                <ChatInterface user={user} />
+             </div>
+           </div>
         </div>
 
       </main>
     </div>
-  )
+  );
 }
-export default App
+
+export default App;

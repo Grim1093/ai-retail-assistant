@@ -1,18 +1,16 @@
-/* eslint-disable react/prop-types */
 import { useState, useEffect } from 'react';
 import AnalyticsTable from './AnalyticsTable';
 import API from '../api';
+import { LayoutDashboard, Store, AlertTriangle } from 'lucide-react';
 
-function Dashboard({ user, onLogout }) {
+function Dashboard({ user }) {
   const [selectedNode, setSelectedNode] = useState("All");
   const [employees, setEmployees] = useState([]);
 
-  // SAFETY CHECK: Prevents the "Cannot read property of undefined" error
   if (!user) {
-    return <div className="p-10 text-center text-gray-500">Loading User Profile...</div>;
+    return <div className="p-10 text-center text-amber-500 animate-pulse">Loading User Profile...</div>;
   }
 
-  // Fetch employee data
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
@@ -26,77 +24,62 @@ function Dashboard({ user, onLogout }) {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header Section */}
-      <header className="bg-blue-800 text-white p-4 shadow-md flex justify-between items-center mb-6">
-        <div className="flex items-center gap-4">
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            AI Retail Assistant
-          </h1>
-          {/* Role Badge */}
-          <span className="bg-blue-900 text-xs px-2 py-1 rounded border border-blue-600 uppercase tracking-wide">
-            {user.role} View
-          </span>
+    <div className="w-full">
+      {/* TOOLBAR */}
+      <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-6 gap-4">
+        <div>
+          <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+            <LayoutDashboard className="text-amber-400 h-8 w-8" />
+            Performance Overview
+          </h2>
+          <p className="text-slate-400 text-sm mt-1">
+            Real-time metrics for <span className="text-amber-400 font-medium">{selectedNode}</span>
+          </p>
         </div>
 
-        <div className="flex items-center gap-4">
-          {/* User Info */}
-          <div className="text-right hidden md:block">
-            <p className="text-sm font-semibold">{user.name}</p>
-            <p className="text-xs text-blue-300">@{user.username}</p>
-          </div>
-
-          {/* Node Selector */}
-          <div className="flex items-center gap-2">
-            <select
-              value={selectedNode}
-              onChange={(e) => setSelectedNode(e.target.value)}
-              className="bg-blue-700 text-white border border-blue-500 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-            >
-              <option value="All">All Locations</option>
-              <option value="Main Counter">Main Counter</option>
-              <option value="Campus Store">Campus Store</option>
-              <option value="Kiosk A">Kiosk A</option>
-            </select>
-          </div>
-
-          {/* Logout Button */}
-          <button
-            onClick={onLogout}
-            className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-1 px-3 rounded ml-2 transition"
+        <div className="relative group">
+          <Store className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 h-4 w-4 group-hover:text-amber-400 transition-colors" />
+          <select
+            value={selectedNode}
+            onChange={(e) => setSelectedNode(e.target.value)}
+            className="appearance-none bg-slate-900/80 border border-slate-700 text-slate-200 pl-10 pr-10 py-2.5 rounded-xl focus:outline-none focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20 hover:border-amber-500/30 transition-all cursor-pointer min-w-[200px]"
           >
-            Logout
-          </button>
+            <option value="All">All Locations</option>
+            <option value="Main Counter">Main Counter</option>
+            <option value="Campus Store">Campus Store</option>
+            <option value="Kiosk A">Kiosk A</option>
+          </select>
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">▼</div>
         </div>
-      </header>
+      </div>
 
-      <main className="p-4">
-        {/* Role-Based Content Access */}
+      {/* CONTENT */}
+      <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
         {user.role === 'manager' ? (
-          // MANAGER VIEW: Show Table
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <h2 className="text-xl font-semibold mb-4 text-slate-800">Store Performance</h2>
-            <AnalyticsTable data={employees} />
+          <div className="app-card overflow-hidden">
+            <div className="flex justify-between items-center mb-6 pb-4 border-b border-white/5">
+              <h3 className="gold-text text-lg font-semibold">Employee Performance Metrics</h3>
+              <span className="text-xs text-slate-500 uppercase tracking-widest font-mono">Live Data</span>
+            </div>
+            <div className="overflow-x-auto">
+              <AnalyticsTable data={employees} />
+            </div>
           </div>
         ) : (
-          // STAFF VIEW: Show Warning
-          <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded shadow-sm">
-            <div className="flex items-center">
-              <div className="shrink-0">
-                <svg className="h-5 w-5 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm text-blue-700">
-                  <span className="font-bold">Staff View Active:</span> You have access to the AI Chat Assistant. 
-                  Analytics are restricted to Managers.
-                </p>
-              </div>
+          <div className="app-card border-l-4 border-l-amber-500 bg-gradient-to-r from-amber-500/10 to-transparent p-6 flex items-start gap-4">
+            <div className="p-3 bg-amber-500/20 rounded-full shrink-0">
+              <AlertTriangle className="h-6 w-6 text-amber-500" />
+            </div>
+            <div>
+              <h3 className="text-amber-100 font-bold text-lg">Access Restricted</h3>
+              <p className="text-slate-300 mt-1 leading-relaxed">
+                You are currently viewing this dashboard as <span className="text-white font-semibold underline decoration-amber-500/50">{user.role}</span>. 
+                Full analytics access is reserved for Managers.
+              </p>
             </div>
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }
