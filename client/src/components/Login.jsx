@@ -1,32 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import API from '../api'; 
-import { User, Lock, Loader2, Sparkles } from 'lucide-react';
+import { User, Lock, Loader2, Sparkles, ArrowRight } from 'lucide-react';
 
 function Login({ onLogin }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
-  // MOUSE INTERACTION STATE
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [cardMousePos, setCardMousePos] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    const handleGlobalMove = (e) => {
-      setMousePos({
-        x: (e.clientX / window.innerWidth - 0.5) * 50,
-        y: (e.clientY / window.innerHeight - 0.5) * 50
-      });
-    };
-    window.addEventListener('mousemove', handleGlobalMove);
-    return () => window.removeEventListener('mousemove', handleGlobalMove);
-  }, []);
-
-  const handleCardMouseMove = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setCardMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,65 +17,63 @@ function Login({ onLogin }) {
       if (response.data.success) {
         onLogin(response.data.user);
       } else {
-        setError(response.data.message || "Login failed");
+        setError(response.data.message || "Invalid credentials");
       }
     } catch (err) {
-      setError("❌ Connection Error. Is the backend running?");
+      setError("Server connection failed");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    // USE THE NEW CLASS 'login-container' FROM INDEX.CSS
-    <div className="login-container">
+    <div className="login-container flex flex-col items-center justify-center relative overflow-hidden">
       
-      {/* Floating Blobs for Parallax */}
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-        <div 
-          className="absolute rounded-full opacity-40 blur-[80px] transition-transform duration-1000 ease-out bg-sky-300"
-          style={{
-            top: '10%', left: '15%', width: '500px', height: '500px',
-            transform: `translate(${mousePos.x * -1.2}px, ${mousePos.y * -1.2}px)`
-          }}
-        />
-        <div 
-          className="absolute rounded-full opacity-30 blur-[80px] transition-transform duration-700 ease-out bg-green-300"
-          style={{
-            bottom: '10%', right: '10%', width: '400px', height: '400px',
-            transform: `translate(${mousePos.x * 1.5}px, ${mousePos.y * 1.5}px)`
-          }}
-        />
-      </div>
-
-      {/* LOGIN CARD */}
+      {/* 1. BACKGROUND EFFECTS (Platinum Theme) */}
+      {/* Grid Pattern - subtle and technical */}
+      <div className="absolute inset-0 bg-grid-pattern z-0 pointer-events-none opacity-60" />
+      
+      {/* Rotating Circle (Geometric accent) */}
       <div 
-        onMouseMove={handleCardMouseMove}
-        className="login-card relative group"
-      >
-        <header className="text-center mb-8">
-          <div className="inline-flex p-3 bg-sky-50 rounded-2xl mb-4 border border-sky-100 shadow-sm">
-            <Sparkles className="h-6 w-6 text-sky-500 animate-pulse" />
-          </div>
-          <h2 className="text-3xl font-bold text-slate-800 tracking-tight">AI Retailer</h2>
-          <p className="text-slate-500 mt-2 text-sm uppercase tracking-widest font-medium">Assistant Hub</p>
-        </header>
+        className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full border border-[var(--grid-color)] opacity-40 animate-spin-slow pointer-events-none z-0"
+      />
+      
+      {/* Spotlight Glow (Indigo Accent) */}
+      <div 
+        className="absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] bg-[var(--accent-color)] opacity-10 blur-[100px] rounded-full pointer-events-none z-0"
+      />
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+      {/* 2. LOGIN CARD */}
+      <div className="login-card w-full max-w-md p-8 z-10 mx-4 relative backdrop-blur-xl border border-[var(--card-border)] shadow-2xl">
+        
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[var(--accent-color)] text-white mb-4 shadow-lg shadow-[var(--accent-glow)]">
+            <Sparkles size={24} />
+          </div>
+          <h2 className="text-2xl font-bold text-[var(--text-main)] tracking-tight">AI Retail</h2>
+          <p className="text-[var(--text-muted)] text-sm mt-2 font-medium">System Access Portal</p>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
-             <div className="p-3 bg-red-50 border border-red-100 text-red-600 text-sm rounded-xl text-center font-medium animate-pulse">
+             <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-sm rounded-lg text-center font-medium animate-pulse">
                {error}
              </div>
           )}
 
-          <div className="space-y-2">
-            <label className="text-slate-500 text-xs font-bold uppercase tracking-widest ml-1">Username</label>
-            <div className="relative group/input">
-              <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 h-5 w-5 group-focus-within/input:text-sky-500 transition-colors" />
+          {/* Username Field */}
+          <div className="space-y-1.5">
+            <label className="text-[var(--text-muted)] text-xs font-bold uppercase tracking-wider ml-1">
+              Username
+            </label>
+            <div className="relative group">
+              <User className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] h-5 w-5 transition-colors group-focus-within:text-[var(--accent-color)]" />
               <input
                 type="text"
-                className="w-full bg-white border border-slate-200 text-slate-800 pl-12 pr-4 py-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-sky-400/50 focus:border-sky-300 transition-all placeholder:text-slate-400 shadow-inner"
-                placeholder="admin"
+                className="input-field pl-10" 
+                placeholder="Enter ID"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
@@ -103,13 +81,16 @@ function Login({ onLogin }) {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-slate-500 text-xs font-bold uppercase tracking-widest ml-1">Password</label>
-            <div className="relative group/input">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 h-5 w-5 group-focus-within/input:text-sky-500 transition-colors" />
+          {/* Password Field */}
+          <div className="space-y-1.5">
+             <label className="text-[var(--text-muted)] text-xs font-bold uppercase tracking-wider ml-1">
+              Password
+            </label>
+            <div className="relative group">
+              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] h-5 w-5 transition-colors group-focus-within:text-[var(--accent-color)]" />
               <input
                 type="password"
-                className="w-full bg-white border border-slate-200 text-slate-800 pl-12 pr-4 py-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-sky-400/50 focus:border-sky-300 transition-all placeholder:text-slate-400 shadow-inner"
+                className="input-field pl-10"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -118,14 +99,32 @@ function Login({ onLogin }) {
             </div>
           </div>
 
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={isLoading}
-            className="login-btn flex justify-center items-center gap-2"
+            className="btn-primary w-full flex items-center justify-center gap-2 mt-6 shadow-lg shadow-[var(--accent-glow)] hover:shadow-xl transition-all"
           >
-            {isLoading ? <Loader2 className="animate-spin h-5 w-5" /> : 'Enter Dashboard'}
+            {isLoading ? (
+              <>
+                <Loader2 className="animate-spin h-5 w-5" />
+                <span>Authenticating...</span>
+              </>
+            ) : (
+              <>
+                <span>Secure Login</span>
+                <ArrowRight size={18} />
+              </>
+            )}
           </button>
         </form>
+        
+        {/* Footer */}
+        <div className="mt-8 pt-6 border-t border-[var(--card-border)] text-center">
+          <p className="text-xs text-[var(--text-muted)]">
+            Authorized Personnel Only • <span className="font-semibold text-[var(--text-main)]">Azure AD Encrypted</span>
+          </p>
+        </div>
       </div>
     </div>
   );
