@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const Product = require('./models/Product');
 const Employee = require('./models/Employee');
 const User = require('./models/user');
+const { use } = require('react');
 
 dotenv.config();
 
@@ -64,6 +65,13 @@ const users = [
     password: "123",
     name: "Pawan (Admin)",
     role: "manager"
+  },
+
+  {
+    username: "staff",
+    password: "123",
+    name: "Rohan(Staff1)",
+    role: "staff"
   }
 ];
 
