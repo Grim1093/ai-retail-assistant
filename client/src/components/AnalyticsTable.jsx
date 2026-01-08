@@ -5,62 +5,66 @@ const AnalyticsTable = ({ data }) => {
   console.log("[AnalyticsTable] Rendering with data count:", data?.length);
 
   if (!data || data.length === 0) {
-    return <div className="p-8 text-center text-slate-500 italic">No employee data available to display.</div>;
+    return <div className="p-8 text-center text-[var(--text-muted)] italic">No employee data available to display.</div>;
   }
 
   return (
-    // Removed 'bg-white shadow' to fit transparently inside the parent app-card
     <div className="w-full">
       <table className="min-w-full text-left border-collapse">
         <thead>
-          <tr className="border-b border-white/10 text-xs uppercase tracking-widest text-slate-400">
+          {/* Header Border & Text: Uses theme variables */}
+          <tr className="border-b border-[var(--card-border)] text-xs uppercase tracking-widest text-[var(--text-muted)]">
             <th className="py-4 px-6 font-medium">Employee Name</th>
             <th className="py-4 px-6 font-medium text-right">Items Sold</th>
             <th className="py-4 px-6 font-medium text-right">Total Sales</th>
-            <th className="py-4 px-6 font-medium text-right text-amber-500">Profit</th>
+            {/* Profit Header: Uses dynamic highlight color */}
+            <th className="py-4 px-6 font-medium text-right text-[var(--accent-color)]">Profit</th>
             <th className="py-4 px-6 font-medium text-right">Avg Discount</th>
             <th className="py-4 px-6 font-medium text-center">Rating</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-white/5">
+        
+        {/* Divide lines: Use theme border variable */}
+        <tbody className="divide-y divide-[var(--card-border)]">
           {data.map((emp, index) => (
             <tr 
               key={index} 
-              className="group hover:bg-white/5 transition-colors duration-200"
+              // Hover: Uses a subtle transparent muted color that works on both backgrounds
+              className="group hover:bg-[var(--text-muted)]/5 transition-colors duration-200"
             >
-              {/* Name */}
-              <td className="py-4 px-6 text-slate-200 font-medium">
+              {/* Name: Main Text Color */}
+              <td className="py-4 px-6 text-[var(--text-main)] font-medium">
                 {emp.name}
               </td>
 
-              {/* Items Sold */}
-              <td className="py-4 px-6 text-slate-400 text-right">
+              {/* Items Sold: Muted Text Color */}
+              <td className="py-4 px-6 text-[var(--text-muted)] text-right">
                 {emp.itemsSold}
               </td>
 
-              {/* Total Sales */}
-              <td className="py-4 px-6 text-slate-200 text-right font-mono">
+              {/* Total Sales: Main Text Color */}
+              <td className="py-4 px-6 text-[var(--text-main)] text-right font-mono">
                 ${emp.totalSalesValue.toLocaleString()}
               </td>
 
-              {/* Profit (Highlighted Gold/Green) */}
-              <td className="py-4 px-6 text-right font-mono font-bold text-amber-400 group-hover:text-amber-300 shadow-amber-500/10">
+              {/* Profit: Accent Color (Gold in Dark / Sky in Light) */}
+              <td className="py-4 px-6 text-right font-mono font-bold text-[var(--accent-color)] group-hover:brightness-110 shadow-[var(--accent-glow)]">
                 ${emp.profitGenerated.toLocaleString()}
               </td>
 
-              {/* Discount */}
-              <td className="py-4 px-6 text-slate-400 text-right">
+              {/* Discount: Muted Text Color */}
+              <td className="py-4 px-6 text-[var(--text-muted)] text-right">
                 {emp.avgDiscount}%
               </td>
 
-              {/* Rating Badge */}
+              {/* Rating Badge: Kept semantic colors (Green/Red/Blue) but checked for visibility */}
               <td className="py-4 px-6 text-center">
                 <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${
                   emp.rating === 'Excellent'
-                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.2)]'
+                    ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
                     : emp.rating === 'Needs Improvement'
-                    ? 'bg-rose-500/10 text-rose-400 border-rose-500/20'
-                    : 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                    ? 'bg-rose-500/10 text-rose-500 border-rose-500/20'
+                    : 'bg-blue-500/10 text-blue-500 border-blue-500/20'
                 }`}>
                   {emp.rating === 'Excellent' && <TrendingUp size={12} />}
                   {emp.rating === 'Needs Improvement' && <TrendingDown size={12} />}

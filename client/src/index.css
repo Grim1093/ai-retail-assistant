@@ -1,156 +1,197 @@
 @import "tailwindcss";
 
 /* -------------------------------------------------------------------------- */
-/* GLOBAL VARIABLES                                                           */
+/* 1. TAILWIND CONFIG                                                         */
 /* -------------------------------------------------------------------------- */
-:root {
-  /* --- Login Theme: Light Greenish + Bold White + Sky Blue --- */
-  --login-bg-start: #e8f5e9;   /* Light Greenish */
-  --login-bg-mid: #ffffff;     /* Bold White */
-  --login-accent: #87ceeb;     /* Sky Blue */
-  --login-text: #2c3e50;       /* Dark Text */
-  
-  /* --- App Theme: Dark Blue + Purple Tone + Goldenish --- */
-  --app-bg-dark: #0f172a;      /* Dark Blue */
-  --app-bg-purple: #2d1b4e;    /* Purple Light Tone */
-  --app-accent: #ffd700;       /* Goldenish */
-  --app-text: #e2e8f0;         /* Light Text */
-  
-  --hover-speed: 0.3s;
-}
+@variant dark (&:where(.dark, .dark *));
 
-@layer utilities {
+@theme {
+  --animate-aurora: aurora 20s linear infinite;
+  
+  /* Geometric Animations */
+  --animate-spin-slow: spin 60s linear infinite;    
+  --animate-spin-medium: spin 20s linear infinite;  
+  
+  --animate-float: float 10s ease-in-out infinite;       
+  --animate-float-fast: float 6s ease-in-out infinite;   
+  --animate-float-wide: float-wide 12s ease-in-out infinite; 
+  
   @keyframes aurora {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
   }
 
-  .animate-aurora {
-    background-size: 200% 200%;
-    animation: aurora 15s ease infinite;
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) translateX(0px); }
+    50% { transform: translateY(-20px) translateX(10px); }
+  }
+
+  @keyframes float-wide {
+    0%, 100% { transform: translateY(0px) translateX(0px); }
+    50% { transform: translateY(-50px) translateX(30px); }
   }
 }
 
 /* -------------------------------------------------------------------------- */
-/* LOGIN PAGE STYLES                                                          */
+/* 2. THEME VARIABLES                                                         */
 /* -------------------------------------------------------------------------- */
-.login-container {
+
+:root {
+  /* --- OPTION 1: PLATINUM & SILVER (High-End Finance) --- */
+  
+  /* Background: Metallic Silver Gradient */
+  --bg-color: #e5e7eb; 
+  --bg-gradient: linear-gradient(135deg, #d1d5db 0%, #f3f4f6 50%, #e5e7eb 100%);
+  
+  /* Cards: Frosted White Glass on Silver */
+  --card-bg: rgba(255, 255, 255, 0.65);
+  --card-border: rgba(255, 255, 255, 0.5); /* White borders for crisp edges */
+  --card-shadow: 0 10px 40px -10px rgba(30, 41, 59, 0.15); /* Darker, sharper shadow */
+  
+  /* Text: Gunmetal & Deep Navy (Sharp Contrast) */
+  --text-main: #1e293b;       /* Slate-800 */
+  --text-muted: #64748b;      /* Slate-500 */
+  --text-highlight: #1e40af;  /* Blue-800 (Deep Navy) */
+  
+  /* Accents: Electric Indigo (Executive Feel) */
+  --accent-color: #4338ca;    /* Indigo-700 */
+  --accent-glow: rgba(67, 56, 202, 0.25);
+  
+  /* Inputs: Clean White against Silver */
+  --input-bg: rgba(255, 255, 255, 0.7);
+  --input-border: #94a3b8;    /* Slate-400 */
+  
+  /* Buttons: Indigo Gradient */
+  --btn-bg: linear-gradient(135deg, #4338ca, #312e81);
+  --btn-text: #ffffff;
+  
+  /* Grid: Subtle Dark Lines (Technical Blueprint) */
+  --grid-color: rgba(15, 23, 42, 0.06); 
+}
+
+.dark {
+  /* DARK MODE */
+  --bg-color: #020617;
+  --bg-gradient: radial-gradient(circle at 50% 0%, #172554 0%, #020617 80%);
+  
+  /* INCREASED TRANSPARENCY HERE (0.7 -> 0.45) */
+  --card-bg: rgba(15, 23, 42, 0.45);
+  
+  --card-border: rgba(255, 255, 255, 0.1);
+  --card-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+  
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-highlight: #fbbf24;
+  
+  --accent-color: #fbbf24;
+  --accent-glow: rgba(251, 191, 36, 0.2);
+  
+  --input-bg: rgba(2, 6, 23, 0.4); /* More transparent inputs */
+  --input-border: rgba(255, 255, 255, 0.1);
+  
+  --btn-bg: #fbbf24;
+  --btn-text: #0f172a;
+  
+  --grid-color: rgba(255, 255, 255, 0.08);
+}
+
+/* -------------------------------------------------------------------------- */
+/* 3. BASE STYLES                                                             */
+/* -------------------------------------------------------------------------- */
+
+body {
+  background: var(--bg-color);
+  background-image: var(--bg-gradient);
+  color: var(--text-main);
   min-height: 100vh;
+  transition: all 0.5s ease;
+  font-family: 'Inter', system-ui, sans-serif;
+  background-attachment: fixed;
+}
+
+/* -------------------------------------------------------------------------- */
+/* 4. UTILITY CLASSES                                                         */
+/* -------------------------------------------------------------------------- */
+
+/* Grid Pattern */
+.bg-grid-pattern {
+  background-size: 40px 40px;
+  background-image: linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+                    linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
+  mask-image: radial-gradient(circle at center, black 70%, transparent 100%);
+  z-index: -1;
+}
+
+.app-container, .login-container {
   width: 100%;
-  background: linear-gradient(135deg, var(--login-bg-start) 0%, var(--login-bg-mid) 50%, var(--login-accent) 100%);
-  background-size: 200% 200%;
-  animation: aurora 15s ease infinite;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Glass Card */
+.app-card, .login-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px; 
+  /* Increased Blur to keep text readable on transparent background */
+  backdrop-filter: blur(24px); 
+  box-shadow: var(--card-shadow);
+  transition: all 0.3s ease;
+}
+
+.app-card:hover, .login-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 50px -10px var(--card-shadow); 
+  border-color: var(--accent-color);
+}
+
+/* Inputs */
+.input-field {
+  width: 100%;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-main);
+  padding: 1rem 1rem 1rem 3rem;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+/* Buttons */
+.btn-primary, .login-btn {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+  font-weight: 700;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.875rem;
   display: flex;
   justify-content: center;
   align-items: center;
-  position: relative;
-  overflow: hidden;
-  color: var(--login-text);
-}
-
-.login-container::before {
-  content: '';
-  position: absolute;
-  top: -10%;
-  right: -10%;
-  width: 50vw;
-  height: 50vw;
-  background: radial-gradient(circle, rgba(135, 206, 235, 0.2) 0%, transparent 70%);
-  border-radius: 50%;
-  animation: floatShape 6s ease-in-out infinite;
-  pointer-events: none;
-}
-
-.login-card {
-  background: rgba(255, 255, 255, 0.9);
-  padding: 2.5rem;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(135, 206, 235, 0.3);
-  backdrop-filter: blur(10px);
-  max-width: 400px;
+  gap: 0.5rem;
   width: 100%;
-  z-index: 10;
-  transition: all var(--hover-speed) ease;
+  box-shadow: 0 4px 10px var(--accent-glow);
 }
 
-.login-card:hover {
-  transform: translateY(-5px) scale(1.02);
-  box-shadow: 0 20px 40px rgba(135, 206, 235, 0.3);
-  border-color: var(--login-accent);
+.btn-primary:hover, .login-btn:hover {
+  filter: brightness(1.1);
+  transform: scale(1.02);
 }
 
-.login-btn {
-  background: linear-gradient(90deg, #4caf50, var(--login-accent));
-  color: white;
-  border: none;
-  padding: 12px;
-  border-radius: 8px;
+/* Text & Highlights */
+.theme-text, .gold-text {
+  color: var(--accent-color);
   font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  width: 100%;
-  margin-top: 1rem;
-}
-
-.login-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 5px 15px rgba(135, 206, 235, 0.5);
-}
-
-/* -------------------------------------------------------------------------- */
-/* MAIN APP STYLES                                                            */
-/* -------------------------------------------------------------------------- */
-.app-container {
-  min-height: 100vh;
-  width: 100%;
-  background: radial-gradient(circle at 10% 20%, var(--app-bg-purple) 0%, var(--app-bg-dark) 80%);
-  color: var(--app-text);
-  position: relative;
-  overflow-x: hidden;
-}
-
-.app-container::after {
-  content: '';
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background-image: radial-gradient(rgba(255, 215, 0, 0.15) 1px, transparent 1px);
-  background-size: 50px 50px;
-  opacity: 0.3;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.app-card {
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(255, 215, 0, 0.1);
-  border-radius: 16px;
-  padding: 20px;
-  backdrop-filter: blur(12px);
-  transition: all var(--hover-speed) ease;
-  position: relative;
-  z-index: 1;
-}
-
-.app-card:hover {
-  border-color: rgba(255, 215, 0, 0.5);
-  box-shadow: 0 0 25px rgba(255, 215, 0, 0.15);
-  transform: translateY(-3px);
-}
-
-.gold-text {
-  background: linear-gradient(90deg, #fff, var(--app-accent));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  display: inline-block;
-}
-
-/* -------------------------------------------------------------------------- */
-/* ANIMATIONS                                                                 */
-/* -------------------------------------------------------------------------- */
-@keyframes floatShape {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-20px); }
 }
