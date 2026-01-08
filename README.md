@@ -11,8 +11,8 @@ This application empowers retail staff to query inventory, upload invoices for a
 
 We have transformed a simple chatbot into a robust, enterprise-grade assistant:
 
-### 1. 🧠 Resilient Hybrid AI (Gemini + Azure)
-*   **Auto-Fallback Architecture:** The system prioritizes the experimental Gemini 2.5 Flash for high-intelligence reasoning. If the API is overloaded (503), it automatically switches to the stable Gemini 1.5 Flash without user interruption.
+### 1. 🧠 Resilient Hybrid AI (Gemma 3 + Azure)
+*   **Auto-Fallback Architecture:** The system prioritizes the powerful **Google Gemma 3 27b-it** for high-intelligence reasoning. If the API is overloaded or unavailable, it automatically switches to the efficient **Gemma 3 12b-it** model without user interruption.
 *   **Multimodal RAG (Retrieval-Augmented Generation):** Users can upload PDFs or Images (e.g., invoices, supply lists). The system reads them using Azure Document Intelligence and cross-references the data with our database.
 *   **Smart Keyword Extraction:** Uses Azure AI Language to extract precise product keywords from natural language queries, ensuring accurate database filtering.
 
@@ -29,6 +29,11 @@ We have transformed a simple chatbot into a robust, enterprise-grade assistant:
 *   **Live Metrics:** Visualizes Sales, Profit Margins, and Employee Ratings fetched directly from Cosmos DB.
 *   **Modern UI:** Built with React + Tailwind CSS v4 for a responsive, professional interface.
 
+### 5. 🛠️ Manual Data Entry & Inventory Management
+*   **Manual Entry:** Managers can now manually add Employees and Products via a modal form, ensuring the database stays up-to-date even without file uploads.
+*   **Product Inventory:** A new "Store Inventory & Benefits" table is visible to all users on the Dashboard, providing a clear view of stock levels.
+*   **Categorical Ratings:** Employee ratings are now categorical ("Excellent", "Very Good", etc.) providing more meaningful performance insights.
+
 ## 🚀 Tech Stack
 
 | Component | Technology |
@@ -39,7 +44,7 @@ We have transformed a simple chatbot into a robust, enterprise-grade assistant:
 | **Storage** | Azure Blob Storage |
 | **AI Vision** | Azure Document Intelligence (OCR) |
 | **AI Analysis** | Azure AI Language (Key Phrase Extraction) |
-| **Generative AI** | Google Gemini (2.5 Flash + 1.5 Flash Auto-Fallback) |
+| **Generative AI** | Google Gemma 3 (27b-it + 12b-it Auto-Fallback) |
 
 ## 🛠️ Setup Instructions
 
@@ -111,6 +116,9 @@ npm run dev
 | **POST** | `/chat` | Hybrid Route: Detects intent, handles file URLs (Document Intelligence), queries Cosmos DB, and generates an AI response. |
 | **POST** | `/upload` | Uploads a local file to Azure Blob Storage and returns a public URL. |
 | **GET** | `/employees` | Fetches performance metrics from Cosmos DB. |
+| **GET** | `/products` | Fetches current inventory and product details. |
+| **POST** | `/products` | Adds a new product to the inventory manually. |
+| **POST** | `/employees` | Adds a new employee to the database manually. |
 
 ## 👥 Team Roles
 
