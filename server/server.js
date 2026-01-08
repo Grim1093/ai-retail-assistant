@@ -44,8 +44,8 @@ logger.info("Express Middleware Configured (CORS + JSON + Multer).");
 // ==========================================
 // INITIALIZE AI & STORAGE CLIENTS
 // ==========================================
-let modelPrimary; // Gemini 2.5 (Smart but unstable)
-let modelBackup;  // Gemini 1.5 (Fast & Stable)
+let modelPrimary; // Gemma 3-27b (High Intelligence)
+let modelBackup;  // Gemma 3-12b (High Efficiency)
 let languageClient;
 let documentClient;
 let blobServiceClient;
@@ -53,15 +53,15 @@ let blobServiceClient;
 try {
     logger.info("Initializing Services...");
 
-    // 1. Google Gemini (Dual Brains)
+    // 1. Google AI (Dual Brains)
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     
-    // Primary: The Experimental One
-    modelPrimary = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-    // Backup: The Stable One
-    modelBackup = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // Primary: The Heavy Lifter
+    modelPrimary = genAI.getGenerativeModel({ model: "gemma-3-27b-it" });
+    // Backup: The Efficient Runner
+    modelBackup = genAI.getGenerativeModel({ model: "gemma-3-12b-it" });
     
-    logger.info("✅ Google Gemini (Primary & Backup) Ready.");
+    logger.info("✅ Google Gemma 3 (Primary & Backup) Ready.");
 
     // 2. Azure AI Language (The Analyst)
     if (process.env.AZURE_LANGUAGE_ENDPOINT && process.env.AZURE_LANGUAGE_KEY) {
@@ -163,7 +163,7 @@ async function readDocumentFromUrl(fileUrl) {
         return extractedText;
     } catch (err) {
         logger.error("Doc Intelligence Failed:", { error: err.message });
-        // Return a clean error message for Gemini to see
+        // Return a clean error message for Gemini/Gemma to see
         return `Error reading document: ${err.message}`; 
     }
 }
@@ -174,12 +174,12 @@ async function readDocumentFromUrl(fileUrl) {
 async function generateAIResponse(prompt) {
     try {
         // Attempt 1: Try Primary Model
-        // logger.trace("Attempting generation with Primary Model (2.5)...");
+        // logger.trace("Attempting generation with Primary Model (Gemma 3-27b)...");
         const result = await modelPrimary.generateContent(prompt);
         return result.response.text();
     } catch (err) {
-        // If 503 (Overloaded) or other error, switch to Backup
-        logger.warn(`⚠️ Primary Model Failed (${err.message}). Switching to Backup (1.5)...`);
+        // If error, switch to Backup
+        logger.warn(`⚠️ Primary Model Failed (${err.message}). Switching to Backup (Gemma 3-12b)...`);
         try {
             const result = await modelBackup.generateContent(prompt);
             return result.response.text();
@@ -247,8 +247,22 @@ app.post('/api/chat', async (req, res) => {
             smartKeywords.some(k => k.toLowerCase().includes(p.name.toLowerCase()))
         );
 
-        const isAskingAboutStaff = ['employee', 'staff', 'sales', 'performance', 'rating', 'who', 'help', 'anyone', 'manager'].some(k => prompt.toLowerCase().includes(k));
-        let relevantEmployees = isAskingAboutStaff ? allEmployees : [];
+        // --- UPDATED LOGIC FOR EMPLOYEES ---
+        // 1. Check if the user is asking broadly about staff/performance/profit
+        const isAskingAboutStaff = ['employee', 'staff', 'sales', 'performance', 'rating', 'who', 'help', 'anyone', 'manager', 'profit', 'profits'].some(k => prompt.toLowerCase().includes(k));
+        
+        let relevantEmployees = [];
+
+        if (isAskingAboutStaff) {
+            // If the query is broad, give the AI access to everyone so it can answer "Who is the best?"
+            relevantEmployees = allEmployees;
+        } else {
+            // 2. If the query is specific (e.g., "How is John?"), check if any employee name matches the keywords
+            relevantEmployees = allEmployees.filter(e => 
+                smartKeywords.some(k => e.name.toLowerCase().includes(k.toLowerCase())) ||
+                smartKeywords.some(k => k.toLowerCase().includes(e.name.toLowerCase()))
+            );
+        }
 
         logger.trace("Step 4", "Context Filtering", { products: relevantProducts.length, employees: relevantEmployees.length });
 
@@ -266,9 +280,10 @@ app.post('/api/chat', async (req, res) => {
 
         if (relevantEmployees.length > 0) {
             contextText += "\n--- EMPLOYEE DATA ---\n";
+            // FIX: Added 'profitGenerated' to the output string so the AI can read it.
             contextText += relevantEmployees.map(e => 
                 `- Name: ${e.name} (${e.nodeLocation})\n` +
-                `  Sales: $${e.totalSalesValue} | Rating: ${e.rating}`
+                `  Sales: $${e.totalSalesValue} | Profit: $${e.profitGenerated} | Rating: ${e.rating}`
             ).join("\n");
         }
 
@@ -285,8 +300,8 @@ app.post('/api/chat', async (req, res) => {
             ).join("\n");
         }
 
-        // === STEP F: GEMINI PROMPT (THE BRAIN) ===
-        // This updated prompt instructs Gemini to summarize and recommend.
+        // === STEP F: GEMMA PROMPT (THE BRAIN) ===
+        // This updated prompt instructs Gemma to summarize and recommend.
         const finalPrompt = `
         SYSTEM ROLE:
         You are an expert Retail Manager AI. Your goal is to simplify data for the user.
@@ -320,7 +335,7 @@ app.post('/api/chat', async (req, res) => {
         `;
 
         // === STEP G: GENERATE RESPONSE (WITH FALLBACK) ===
-        logger.trace("Step 5", "Sending to Gemini");
+        logger.trace("Step 5", "Sending to Gemma");
         
         // Use the new failover function instead of direct call
         const aiAnswer = await generateAIResponse(finalPrompt);
@@ -340,7 +355,7 @@ app.post('/api/chat', async (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-// Employee Route
+// 1. Employee Route (GET)
 app.get('/api/employees', async (req, res) => {
     logger.info("--- Employee Data Request ---");
     const { node } = req.query; 
@@ -355,6 +370,76 @@ app.get('/api/employees', async (req, res) => {
     } catch (error) {
         logger.error("DB Failure:", { error: error.message });
         res.status(500).json({ message: error.message });
+    }
+});
+
+// 2. Product Route (GET) - NEW! Added to populate the new table
+app.get('/api/products', async (req, res) => {
+    logger.info("--- Product Data Request ---");
+    try {
+        const products = await Product.find({});
+        logger.info(`Found ${products.length} products.`);
+        res.json(products);
+    } catch (error) {
+        logger.error("DB Failure:", { error: error.message });
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// 3. Add Employee Route (POST) - NEW
+app.post('/api/employees', async (req, res) => {
+    logger.info("--- Add Employee Request Received ---");
+    try {
+        // Log the incoming data to help debug
+        logger.trace("Received Data Body:", req.body);
+
+        const { name, itemsSold, totalSalesValue, profitGenerated, avgDiscount, rating, nodeLocation } = req.body;
+
+        // Create new Employee document
+        const newEmployee = new Employee({
+            name, 
+            itemsSold, 
+            totalSalesValue, 
+            profitGenerated, 
+            avgDiscount, 
+            rating, 
+            nodeLocation
+        });
+
+        await newEmployee.save();
+        
+        logger.info(`✅ New Employee Created: ${name} at ${nodeLocation}`);
+        res.status(201).json(newEmployee);
+    } catch (error) {
+        logger.error("❌ Failed to add employee:", { error: error.message });
+        res.status(500).json({ message: "Failed to add employee" });
+    }
+});
+
+// 4. Add Product Route (POST) - NEW
+app.post('/api/products', async (req, res) => {
+    logger.info("--- Add Product Request Received ---");
+    try {
+        logger.trace("Received Data Body:", req.body);
+
+        const { name, category, currentPrice, stockLevel, studentBenefits, isAvailableInOtherNodes } = req.body;
+
+        const newProduct = new Product({
+            name, 
+            category, 
+            currentPrice, 
+            stockLevel, 
+            studentBenefits, 
+            isAvailableInOtherNodes
+        });
+
+        await newProduct.save();
+
+        logger.info(`✅ New Product Created: ${name}`);
+        res.status(201).json(newProduct);
+    } catch (error) {
+        logger.error("❌ Failed to add product:", { error: error.message });
+        res.status(500).json({ message: "Failed to add product" });
     }
 });
 

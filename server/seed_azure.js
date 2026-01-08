@@ -18,12 +18,44 @@ const products = [
   { name: "Smart Watch", currentPrice: 150.00, stockLevel: 15, studentBenefits: "Free screen protector", priceHistory: [{ price: 180 }, { price: 160 }, { price: 150 }] }
 ];
 
-// FIXED: Added 'profitGenerated' field which was missing!
+// FIXED: Refactored ratings to be Categorical Strings
 const employees = [
-  { name: "Alice Johnson", nodeLocation: "Main Counter", totalSalesValue: 12500, profitGenerated: 3200, itemsSold: 450, rating: "4.8", avgDiscount: 5.2 },
-  { name: "Bob Smith", nodeLocation: "Campus Store", totalSalesValue: 18200, profitGenerated: 4500, itemsSold: 120, rating: "4.5", avgDiscount: 8.5 },
-  { name: "Charlie Davis", nodeLocation: "Kiosk A", totalSalesValue: 8400, profitGenerated: 2100, itemsSold: 600, rating: "4.9", avgDiscount: 12.0 },
-  { name: "Diana Prince", nodeLocation: "Main Counter", totalSalesValue: 5000, profitGenerated: 1200, itemsSold: 90, rating: "4.2", avgDiscount: 2.5 }
+  { 
+    name: "Alice Johnson", 
+    nodeLocation: "Main Counter", 
+    totalSalesValue: 12500, 
+    profitGenerated: 3200, 
+    itemsSold: 450, 
+    rating: "Excellent", // Was 4.8
+    avgDiscount: 5.2 
+  },
+  { 
+    name: "Bob Smith", 
+    nodeLocation: "Campus Store", 
+    totalSalesValue: 18200, 
+    profitGenerated: 4500, 
+    itemsSold: 120, 
+    rating: "Very Good", // Was 4.5
+    avgDiscount: 8.5 
+  },
+  { 
+    name: "Charlie Davis", 
+    nodeLocation: "Kiosk A", 
+    totalSalesValue: 8400, 
+    profitGenerated: 2100, 
+    itemsSold: 600, 
+    rating: "Excellent", // Was 4.9
+    avgDiscount: 12.0 
+  },
+  { 
+    name: "Diana Prince", 
+    nodeLocation: "Main Counter", 
+    totalSalesValue: 5000, 
+    profitGenerated: 1200, 
+    itemsSold: 90, 
+    rating: "Good", // Was 4.2
+    avgDiscount: 2.5 
+  }
 ];
 
 const users = [
