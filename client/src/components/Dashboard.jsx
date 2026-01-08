@@ -132,6 +132,17 @@ function Dashboard({ user }) {
           </div>
         )}
       </div>
+    
+    {/* --- SEPARATOR & NEW HEADING --- */}
+      <div className="mt-10 mb-6">
+        <h2 className="text-3xl font-bold text-[var(--text-main)] tracking-tight flex items-center gap-3">
+          <PackageSearch className="text-[var(--accent-color)] h-8 w-8" />
+          Inventory Management
+        </h2>
+        <p className="text-[var(--text-muted)] text-sm mt-1">
+          Detailed breakdown of <span className="text-[var(--accent-color)] font-medium">Stock & Benefits</span>
+        </p>
+      </div>
 
       {/* --- SECTION 2: PRODUCT INVENTORY (Visible to All) --- */}
       <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
