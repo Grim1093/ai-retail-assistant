@@ -1,32 +1,48 @@
 import { useState, useEffect } from 'react';
 import AnalyticsTable from './AnalyticsTable';
+import ProductTable from './ProductTable';
+import AddDataModal from './AddDataModal'; // <--- RESTORED IMPORT
 import API from '../api';
-import { LayoutDashboard, Store, AlertTriangle } from 'lucide-react';
+import { LayoutDashboard, Store, AlertTriangle, PackageSearch, Plus } from 'lucide-react'; // <--- RESTORED Plus Icon
 
 function Dashboard({ user }) {
   const [selectedNode, setSelectedNode] = useState("All");
   const [employees, setEmployees] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false); // <--- RESTORED STATE
 
   if (!user) {
     return <div className="p-10 text-center text-[var(--accent-color)] animate-pulse">Loading User Profile...</div>;
   }
 
+  // Define fetch function outside so we can call it after adding data
+  const fetchData = async () => {
+    console.log(`[Dashboard] Fetching data for node: ${selectedNode}`);
+    try {
+      // 1. Fetch Employees (Filter by Node)
+      const empRes = await API.get('/employees', { 
+          params: { node: selectedNode } 
+      });
+      setEmployees(empRes.data);
+
+      // 2. Fetch Products
+      const prodRes = await API.get('/products');
+      setProducts(prodRes.data);
+
+    } catch (err) {
+      console.error("Error fetching dashboard data:", err);
+    }
+  };
+
+  // Fetch on load and when node changes
   useEffect(() => {
-    const fetchEmployees = async () => {
-      try {
-        const response = await API.get('/employees');
-        setEmployees(response.data);
-      } catch (err) {
-        console.error("Error fetching employees:", err);
-      }
-    };
-    fetchEmployees();
-  }, []);
+    fetchData();
+  }, [selectedNode]);
 
   return (
-    <div className="w-full">
+    <div className="w-full space-y-8 relative">
       {/* TOOLBAR */}
-      <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-6 gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-end md:items-center gap-4">
         <div>
           <h2 className="text-3xl font-bold text-[var(--text-main)] tracking-tight flex items-center gap-3">
             <LayoutDashboard className="text-[var(--accent-color)] h-8 w-8" />
@@ -37,29 +53,39 @@ function Dashboard({ user }) {
           </p>
         </div>
 
-        <div className="relative group">
-          <Store className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] h-4 w-4 group-hover:text-[var(--accent-color)] transition-colors" />
-          <select
-            value={selectedNode}
-            onChange={(e) => setSelectedNode(e.target.value)}
-            // FIX: Added !bg-transparent to let the background shine through more, reliant on the glass blur of the container
-            className="appearance-none bg-[var(--card-bg)]/50 border border-[var(--card-border)] text-[var(--text-main)] pl-10 pr-10 py-2.5 rounded-xl focus:outline-none focus:border-[var(--accent-color)] focus:ring-2 focus:ring-[var(--accent-color)] focus:ring-opacity-20 hover:border-[var(--accent-color)] transition-all cursor-pointer min-w-[200px] backdrop-blur-md"
-          >
-            <option value="All">All Locations</option>
-            <option value="Main Counter">Main Counter</option>
-            <option value="Campus Store">Campus Store</option>
-            <option value="Kiosk A">Kiosk A</option>
-          </select>
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--text-muted)]">▼</div>
+        <div className="flex items-center gap-3">
+            {/* RESTORED: Add Data Button (Manager Only) */}
+            {user.role === 'manager' && (
+                <button 
+                    onClick={() => setIsModalOpen(true)}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--accent-color)] text-white font-semibold shadow-lg shadow-[var(--accent-glow)] hover:scale-105 active:scale-95 transition-all duration-300"
+                >
+                    <Plus size={18} strokeWidth={3} />
+                    <span className="hidden sm:inline">Add Data</span>
+                </button>
+            )}
+
+            {/* Node Selector */}
+            <div className="relative group">
+                <Store className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] h-4 w-4 group-hover:text-[var(--accent-color)] transition-colors" />
+                <select
+                    value={selectedNode}
+                    onChange={(e) => setSelectedNode(e.target.value)}
+                    className="appearance-none bg-[var(--card-bg)]/50 border border-[var(--card-border)] text-[var(--text-main)] pl-10 pr-10 py-2.5 rounded-xl focus:outline-none focus:border-[var(--accent-color)] focus:ring-2 focus:ring-[var(--accent-color)] focus:ring-opacity-20 hover:border-[var(--accent-color)] transition-all cursor-pointer min-w-[200px] backdrop-blur-md"
+                >
+                    <option value="All">All Locations</option>
+                    <option value="Main Counter">Main Counter</option>
+                    <option value="Campus Store">Campus Store</option>
+                    <option value="Kiosk A">Kiosk A</option>
+                </select>
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--text-muted)]">▼</div>
+            </div>
         </div>
       </div>
 
-      {/* CONTENT */}
-      <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {/* --- SECTION 1: EMPLOYEES (Manager Only) --- */}
+      <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
         {user.role === 'manager' ? (
-          // FIX: Overrode the default .app-card background with a highly transparent one
-          // Light Mode: !bg-white/10 | Dark Mode: !bg-slate-900/40
-          // Added backdrop-blur-xl to blur the passing circles while keeping them visible
           <div className="app-card overflow-hidden !p-0 !bg-white/10 dark:!bg-slate-900/40 backdrop-blur-xl border-[var(--card-border)]">
             <div className="flex justify-between items-center px-6 py-4 border-b border-[var(--card-border)]/50">
               <h3 className="theme-text text-lg font-semibold">Employee Performance Metrics</h3>
@@ -84,6 +110,34 @@ function Dashboard({ user }) {
           </div>
         )}
       </div>
+
+      {/* --- SECTION 2: PRODUCT INVENTORY (Visible to All) --- */}
+      <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
+          <div className="app-card overflow-hidden !p-0 !bg-white/10 dark:!bg-slate-900/40 backdrop-blur-xl border-[var(--card-border)]">
+            <div className="flex justify-between items-center px-6 py-4 border-b border-[var(--card-border)]/50">
+              <h3 className="theme-text text-lg font-semibold flex items-center gap-2">
+                 <PackageSearch size={20} className="text-[var(--accent-color)]" />
+                 Store Inventory & Benefits
+              </h3>
+              <span className="text-xs text-[var(--text-muted)] uppercase tracking-widest font-mono">Live Data</span>
+            </div>
+            <div className="overflow-x-auto">
+              <ProductTable data={products} />
+            </div>
+          </div>
+      </div>
+
+      {/* RESTORED: Add Data Modal */}
+      {isModalOpen && (
+        <AddDataModal 
+            onClose={() => setIsModalOpen(false)} 
+            onSuccess={() => {
+                fetchData(); // Refresh data after add
+                setIsModalOpen(false); 
+            }} 
+        />
+      )}
+
     </div>
   );
 }
