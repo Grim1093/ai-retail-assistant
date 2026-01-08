@@ -96,12 +96,12 @@ function ChatInterface() {
             </div>
 
             {/* Bubble - INCREASED TRANSPARENCY HERE */}
-            <div className={`max-w-[85%] p-3 rounded-2xl border backdrop-blur-md ${
+            <div className={`max-w-[85%] p-3 rounded-2xl border backdrop-blur-md wrap-break-word whitespace-pre-wrap ${
               msg.sender === 'user' 
                 // User: Highly transparent accent color
-                ? 'bg-[var(--accent-color)]/70 text-[var(--btn-text)] border-transparent rounded-tr-none font-medium shadow-lg shadow-[var(--accent-glow)]' 
+                ? 'bg-(--accent-color)/70 text-(--btn-text) border-transparent rounded-tr-none font-medium shadow-lg shadow-[var(--accent-glow)]' 
                 // AI: Almost clear glass (bg-white/10 or bg-slate-900/30)
-                : 'bg-white/10 dark:bg-slate-900/30 text-[var(--text-main)] border-[var(--card-border)]/50 rounded-tl-none shadow-sm'
+                : 'bg-white/10 dark:bg-slate-900/30 text-(--text-main) border-(--card-border)/50 rounded-tl-none shadow-sm'
             }`}>
               {msg.text}
             </div>
@@ -165,8 +165,8 @@ function ChatInterface() {
           disabled={isLoading || isUploading}
           className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg transition-all z-10 ${
             isLoading || !input.trim()
-              ? 'text-[var(--text-muted)] cursor-not-allowed' 
-              : 'bg-[var(--accent-color)] text-[var(--btn-text)] hover:scale-105 shadow-lg shadow-[var(--accent-glow)]'
+              ? 'text-(--text-muted) cursor-not-allowed' 
+              : 'bg-(--accent-color) text-(--btn-text) hover:scale-105 shadow-lg shadow-[var(--accent-glow)]'
           }`}
         >
           <Send size={16} />
