@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom'; // <--- CRITICAL IMPORT
-import { X, UserPlus, PackagePlus, CheckCircle, AlertCircle } from 'lucide-react';
+import { X, UserPlus, PackagePlus, CheckCircle, AlertCircle, ChevronDown, Check } from 'lucide-react';
 import API from '../api';
 
 function AddDataModal({ onClose, onSuccess }) {
   const [activeTab, setActiveTab] = useState('employee'); // 'employee' or 'product'
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isNodeOpen, setIsNodeOpen] = useState(false);
+  const [isRatingOpen, setIsRatingOpen] = useState(false);
 
   // --- INITIAL STATES ---
   const initialEmployeeState = {
@@ -123,13 +125,36 @@ function AddDataModal({ onClose, onSuccess }) {
                             <input required name="name" value={empData.name} onChange={handleEmpChange} className="w-full bg-[var(--bg-primary)] border border-[var(--card-border)] rounded-lg px-3 py-2 text-[var(--text-main)] focus:border-[var(--accent-color)] outline-none" placeholder="e.g. John Doe" />
                         </div>
 
-                        <div className="form-group">
+                        {/* Custom Location Dropdown */}
+                        <div className="form-group relative z-20">
                             <label className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1 block">Location Node</label>
-                            <select name="nodeLocation" value={empData.nodeLocation} onChange={handleEmpChange} className="w-full bg-[var(--bg-primary)] border border-[var(--card-border)] rounded-lg px-3 py-2 text-[var(--text-main)] focus:border-[var(--accent-color)] outline-none">
-                                <option>Main Counter</option>
-                                <option>Campus Store</option>
-                                <option>Kiosk A</option>
-                            </select>
+                            
+                            <button 
+                                type="button"
+                                onClick={() => setIsNodeOpen(!isNodeOpen)}
+                                onBlur={() => setTimeout(() => setIsNodeOpen(false), 200)}
+                                className="w-full flex items-center justify-between bg-[var(--bg-primary)] border border-[var(--card-border)] rounded-lg px-3 py-2 text-[var(--text-main)] focus:border-[var(--accent-color)] hover:border-[var(--accent-color)] transition-all"
+                            >
+                                <span>{empData.nodeLocation}</span>
+                                <ChevronDown size={16} className={`text-[var(--text-muted)] transition-transform ${isNodeOpen ? 'rotate-180' : ''}`} />
+                            </button>
+
+                            {isNodeOpen && (
+                                <div className="absolute top-full left-0 mt-1 w-full bg-[var(--card-bg)] border border-[var(--card-border)] rounded-xl shadow-xl overflow-hidden backdrop-blur-xl z-50 animate-in fade-in zoom-in-95 duration-200">
+                                    {['Main Counter', 'Campus Store', 'Kiosk A'].map((loc) => (
+                                        <div 
+                                            key={loc}
+                                            onClick={() => {
+                                                setEmpData(prev => ({ ...prev, nodeLocation: loc }));
+                                                setIsNodeOpen(false);
+                                            }}
+                                            className="px-4 py-2.5 text-sm cursor-pointer hover:bg-[var(--accent-color)]/10 text-[var(--text-main)] hover:text-[var(--accent-color)] transition-colors"
+                                        >
+                                            {loc}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
@@ -154,15 +179,36 @@ function AddDataModal({ onClose, onSuccess }) {
                             </div>
                         </div>
 
-                        <div className="form-group">
+                        {/* Custom Rating Dropdown */}
+                        <div className="form-group relative z-10">
                             <label className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1 block">Performance Rating</label>
-                            <select name="rating" value={empData.rating} onChange={handleEmpChange} className="w-full bg-[var(--bg-primary)] border border-[var(--card-border)] rounded-lg px-3 py-2 text-[var(--text-main)] focus:border-[var(--accent-color)] outline-none">
-                                <option>Excellent</option>
-                                <option>Very Good</option>
-                                <option>Good</option>
-                                <option>Satisfactory</option>
-                                <option>Needs Improvement</option>
-                            </select>
+                            
+                            <button 
+                                type="button"
+                                onClick={() => setIsRatingOpen(!isRatingOpen)}
+                                onBlur={() => setTimeout(() => setIsRatingOpen(false), 200)}
+                                className="w-full flex items-center justify-between bg-[var(--bg-primary)] border border-[var(--card-border)] rounded-lg px-3 py-2 text-[var(--text-main)] focus:border-[var(--accent-color)] hover:border-[var(--accent-color)] transition-all"
+                            >
+                                <span>{empData.rating}</span>
+                                <ChevronDown size={16} className={`text-[var(--text-muted)] transition-transform ${isRatingOpen ? 'rotate-180' : ''}`} />
+                            </button>
+
+                            {isRatingOpen && (
+                                <div className="absolute bottom-full mb-1 left-0 w-full bg-[var(--card-bg)] border border-[var(--card-border)] rounded-xl shadow-xl overflow-hidden backdrop-blur-xl z-50 animate-in fade-in zoom-in-95 duration-200">
+                                    {['Excellent', 'Very Good', 'Good', 'Satisfactory', 'Needs Improvement'].map((rate) => (
+                                        <div 
+                                            key={rate}
+                                            onClick={() => {
+                                                setEmpData(prev => ({ ...prev, rating: rate }));
+                                                setIsRatingOpen(false);
+                                            }}
+                                            className="px-4 py-2.5 text-sm cursor-pointer hover:bg-[var(--accent-color)]/10 text-[var(--text-main)] hover:text-[var(--accent-color)] transition-colors"
+                                        >
+                                            {rate}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </>
                 )}
@@ -196,9 +242,27 @@ function AddDataModal({ onClose, onSuccess }) {
                             <input name="studentBenefits" value={prodData.studentBenefits} onChange={handleProdChange} className="w-full bg-[var(--bg-primary)] border border-[var(--card-border)] rounded-lg px-3 py-2 text-[var(--text-main)]" placeholder="e.g. 10% Off with ID" />
                         </div>
 
-                        <div className="flex items-center gap-3 p-3 border border-[var(--card-border)] rounded-lg bg-[var(--bg-primary)]/50">
-                            <input type="checkbox" name="isAvailableInOtherNodes" checked={prodData.isAvailableInOtherNodes} onChange={handleProdChange} className="w-5 h-5 text-[var(--accent-color)] rounded focus:ring-[var(--accent-color)]" />
-                            <label className="text-sm font-medium text-[var(--text-main)]">Available in all nodes?</label>
+                        {/* Custom Toggle Switch */}
+                        <div 
+                            onClick={() => setProdData(prev => ({ ...prev, isAvailableInOtherNodes: !prev.isAvailableInOtherNodes }))}
+                            className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all ${
+                                prodData.isAvailableInOtherNodes 
+                                    ? 'bg-[var(--accent-color)]/10 border-[var(--accent-color)]' 
+                                    : 'bg-[var(--bg-primary)]/50 border-[var(--card-border)] hover:border-[var(--text-muted)]'
+                            }`}
+                        >
+                            {/* The Toggle Box */}
+                            <div className={`w-5 h-5 rounded flex items-center justify-center transition-colors border ${
+                                prodData.isAvailableInOtherNodes
+                                    ? 'bg-[var(--accent-color)] border-[var(--accent-color)]'
+                                    : 'bg-transparent border-[var(--text-muted)]'
+                            }`}>
+                                {prodData.isAvailableInOtherNodes && <Check size={14} className="text-white" strokeWidth={4} />}
+                            </div>
+                            
+                            <label className="text-sm font-medium text-[var(--text-main)] cursor-pointer select-none">
+                                Available in all nodes?
+                            </label>
                         </div>
                     </>
                 )}
