@@ -125,8 +125,8 @@ function AddDataModal({ onClose, onSuccess }) {
                             <input required name="name" value={empData.name} onChange={handleEmpChange} className="w-full bg-[var(--bg-primary)] border border-[var(--card-border)] rounded-lg px-3 py-2 text-[var(--text-main)] focus:border-[var(--accent-color)] outline-none" placeholder="e.g. John Doe" />
                         </div>
 
-                        {/* Custom Location Dropdown */}
-                        <div className="form-group relative z-20">
+                        {/* Custom Location Dropdown - FIXED Z-INDEX */}
+                        <div className={`form-group relative ${isNodeOpen ? 'z-50' : 'z-20'}`}>
                             <label className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1 block">Location Node</label>
                             
                             <button 
@@ -179,8 +179,8 @@ function AddDataModal({ onClose, onSuccess }) {
                             </div>
                         </div>
 
-                        {/* Custom Rating Dropdown */}
-                        <div className="form-group relative z-10">
+                        {/* Custom Rating Dropdown - FIXED Z-INDEX */}
+                        <div className={`form-group relative ${isRatingOpen ? 'z-50' : 'z-10'}`}>
                             <label className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1 block">Performance Rating</label>
                             
                             <button 
