@@ -44,15 +44,19 @@ function Dashboard({ user }) {
     <div className="w-full space-y-8 relative">
       {/* TOOLBAR */}
       <div className="flex flex-col md:flex-row justify-between items-end md:items-center gap-4">
-        <div>
-          <h2 className="text-3xl font-bold text-[var(--text-main)] tracking-tight flex items-center gap-3">
-            <LayoutDashboard className="text-[var(--accent-color)] h-8 w-8" />
-            Performance Overview
-          </h2>
-          <p className="text-[var(--text-muted)] text-sm mt-1">
-            Real-time metrics for <span className="text-[var(--accent-color)] font-medium">{selectedNode}</span>
-          </p>
-        </div>
+        
+        {/* Show Heading ONLY if Manager */}
+        {user.role === 'manager' ? (
+          <div>
+            <h2 className="text-3xl font-bold text-[var(--text-main)] tracking-tight flex items-center gap-3">
+              <LayoutDashboard className="text-[var(--accent-color)] h-8 w-8" />
+              Performance Overview
+            </h2>
+            <p className="text-[var(--text-muted)] text-sm mt-1">
+              Real-time metrics for <span className="text-[var(--accent-color)] font-medium">{selectedNode}</span>
+            </p>
+          </div>
+        ) : <div />} {/* Empty div to keep layout stable if needed */}
 
         <div className="flex items-center gap-3">
             {/* RESTORED: Add Data Button (Manager Only) */}
@@ -66,10 +70,11 @@ function Dashboard({ user }) {
                 </button>
             )}
 
-            {/* Node Selector */}
-            <div className="relative z-50"> {/* z-50 ensures it floats on top of the table */}
+            {/* Node Selector (Manager Only) */}
+            {user.role === 'manager' && (
+              <div className="relative z-50">
                 <Store className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] h-4 w-4 z-10" />
-                
+     
                 {/* The Trigger Button */}
                 <button 
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -102,12 +107,14 @@ function Dashboard({ user }) {
                     </div>
                 )}
             </div>
+            )}
         </div>
       </div>
 
       {/* --- SECTION 1: EMPLOYEES (Manager Only) --- */}
-      <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
-        {user.role === 'manager' ? (
+      {/* If manager, show table. If not, show nothing. */}
+      {user.role === 'manager' && (
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
           <div className="app-card overflow-hidden !p-0 !bg-white/10 dark:!bg-slate-900/40 backdrop-blur-xl border-[var(--card-border)]">
             <div className="flex justify-between items-center px-6 py-4 border-b border-[var(--card-border)]/50">
               <h3 className="theme-text text-lg font-semibold">Employee Performance Metrics</h3>
@@ -117,21 +124,8 @@ function Dashboard({ user }) {
               <AnalyticsTable data={employees} />
             </div>
           </div>
-        ) : (
-          <div className="app-card border-l-4 border-l-[var(--accent-color)] bg-[var(--card-bg)]/50 backdrop-blur-md p-6 flex items-start gap-4">
-            <div className="p-3 bg-[var(--accent-color)]/20 rounded-full shrink-0">
-              <AlertTriangle className="h-6 w-6 text-[var(--accent-color)]" />
-            </div>
-            <div>
-              <h3 className="text-[var(--text-main)] font-bold text-lg">Access Restricted</h3>
-              <p className="text-[var(--text-muted)] mt-1 leading-relaxed">
-                You are currently viewing this dashboard as <span className="text-[var(--text-main)] font-bold underline decoration-[var(--accent-color)]">{user.role}</span>. 
-                Full analytics access is reserved for Managers.
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
     
     {/* --- SEPARATOR & NEW HEADING --- */}
       <div className="mt-10 mb-6">

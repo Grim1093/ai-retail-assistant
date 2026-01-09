@@ -452,6 +452,7 @@ app.post("/api/auth/login", async (req, res) => {
     if (!user || user.password !== password) {
         return res.status(401).json({ success: false, message: "Invalid credentials" });
     }
+    
     res.json({
       success: true,
       user: {
