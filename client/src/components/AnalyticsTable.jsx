@@ -1,8 +1,50 @@
-import React from 'react';
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import React, {useState} from 'react';
+import { TrendingUp, TrendingDown, Minus, ArrowUpDown } from 'lucide-react';
 
 const AnalyticsTable = ({ data }) => {
   console.log("[AnalyticsTable] Rendering with data count:", data?.length);
+
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+
+  // --- SORTING LOGIC ---
+  const sortedData = React.useMemo(() => {
+    if (!data) return [];
+    let sortableItems = [...data];
+    if (sortConfig.key !== null) {
+      sortableItems.sort((a, b) => {
+        let aValue = a[sortConfig.key];
+        let bValue = b[sortConfig.key];
+
+        // Special handling for Rating strings if needed, otherwise string compare
+        if (aValue < bValue) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sortableItems;
+  }, [data, sortConfig]);
+
+  const requestSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  // Helper to render sort icon
+  const SortIcon = ({ columnKey }) => (
+    <ArrowUpDown 
+      size={14} 
+      className={`ml-1 transition-opacity ${
+        sortConfig.key === columnKey ? 'opacity-100 text-[var(--accent-color)]' : 'opacity-30 group-hover:opacity-70'
+      }`} 
+    />
+  );
 
   if (!data || data.length === 0) {
     return <div className="p-8 text-center text-[var(--text-muted)] italic">No employee data available to display.</div>;
@@ -12,21 +54,43 @@ const AnalyticsTable = ({ data }) => {
     <div className="w-full">
       <table className="min-w-full text-left border-collapse">
         <thead>
-          {/* Header Border & Text: Uses theme variables */}
           <tr className="border-b border-[var(--card-border)] text-xs uppercase tracking-widest text-[var(--text-muted)]">
-            <th className="py-4 px-6 font-medium">Employee Name</th>
-            <th className="py-4 px-6 font-medium text-right">Items Sold</th>
-            <th className="py-4 px-6 font-medium text-right">Total Sales</th>
-            {/* Profit Header: Uses dynamic highlight color */}
-            <th className="py-4 px-6 font-medium text-right text-[var(--accent-color)]">Profit</th>
-            <th className="py-4 px-6 font-medium text-right">Avg Discount</th>
-            <th className="py-4 px-6 font-medium text-center">Rating</th>
+            
+            {/* 1. NAME - Clickable */}
+            <th className="py-4 px-6 font-medium cursor-pointer group select-none" onClick={() => requestSort('name')}>
+              <div className="flex items-center">Employee Name <SortIcon columnKey="name" /></div>
+            </th>
+
+            {/* 2. ITEMS SOLD - Clickable */}
+            <th className="py-4 px-6 font-medium text-right cursor-pointer group select-none" onClick={() => requestSort('itemsSold')}>
+              <div className="flex items-center justify-end">Items Sold <SortIcon columnKey="itemsSold" /></div>
+            </th>
+
+            {/* 3. SALES - Clickable */}
+            <th className="py-4 px-6 font-medium text-right cursor-pointer group select-none" onClick={() => requestSort('totalSalesValue')}>
+              <div className="flex items-center justify-end">Total Sales <SortIcon columnKey="totalSalesValue" /></div>
+            </th>
+
+            {/* 4. PROFIT - Clickable & Colored */}
+            <th className="py-4 px-6 font-medium text-right text-[var(--accent-color)] cursor-pointer group select-none" onClick={() => requestSort('profitGenerated')}>
+              <div className="flex items-center justify-end">Profit <SortIcon columnKey="profitGenerated" /></div>
+            </th>
+
+            {/* 5. DISCOUNT - Clickable */}
+            <th className="py-4 px-6 font-medium text-right cursor-pointer group select-none" onClick={() => requestSort('avgDiscount')}>
+              <div className="flex items-center justify-end">Avg Discount <SortIcon columnKey="avgDiscount" /></div>
+            </th>
+
+            {/* 6. RATING - Clickable */}
+            <th className="py-4 px-6 font-medium text-center cursor-pointer group select-none" onClick={() => requestSort('rating')}>
+              <div className="flex items-center justify-center">Rating <SortIcon columnKey="rating" /></div>
+            </th>
           </tr>
         </thead>
         
         {/* Divide lines: Use theme border variable */}
         <tbody className="divide-y divide-[var(--card-border)]">
-          {data.map((emp, index) => (
+          {sortedData.map((emp, index) => (
             <tr 
               key={index} 
               // Hover: Uses a subtle transparent muted color that works on both backgrounds

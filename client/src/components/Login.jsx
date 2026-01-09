@@ -20,7 +20,11 @@ function Login({ onLogin }) {
         setError(response.data.message || "Invalid credentials");
       }
     } catch (err) {
-      setError("Server connection failed");
+      if(err.response && err.response.data && err.response.data.message) {
+        setError(err.response.data.message) ;
+      } else {
+        setError("Server connection failed");
+      }
     } finally {
       setIsLoading(false);
     }

@@ -3,7 +3,7 @@ import Dashboard from './components/Dashboard';
 import ChatInterface from './components/ChatInterface';
 import Login from './components/Login';
 import { useTheme } from './context/ThemeContext';
-import { LogOut } from 'lucide-react'; // Removed Sun, Moon imports
+import { LogOut, Sun, Moon } from 'lucide-react'; // Removed Sun, Moon imports
 
 function App() {
   const [user, setUser] = useState(null);
@@ -44,11 +44,13 @@ function App() {
           {/* --- THEME TOGGLE (Minimalist Color Swatch) --- */}
           <button 
             onClick={toggleTheme}
-            // Removed flex-center/justify-center since there is no icon
-            className="w-10 h-10 rounded-xl shadow-lg transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer hover:shadow-[var(--accent-glow)] border border-white/20" 
+            className="w-10 h-10 rounded-xl shadow-lg transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer hover:shadow-[var(--accent-glow)] border border-white/20 flex items-center justify-center text-white" 
             style={{ backgroundColor: 'var(--accent-color)' }}
             title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
-          />
+          >
+            {/* If theme is dark, show Sun (to switch to light). If light, show Moon. */}
+            {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
 
           <h1 className="text-2xl font-bold tracking-tight select-none">
             <span className="theme-text">AI Retail</span> <span className="text-[var(--text-muted)] opacity-80">Assistant</span>
