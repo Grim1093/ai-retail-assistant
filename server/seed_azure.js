@@ -4,7 +4,6 @@ const dotenv = require('dotenv');
 const Product = require('./models/Product');
 const Employee = require('./models/Employee');
 const User = require('./models/user');
-//const { use } = require('react');
 
 dotenv.config();
 
@@ -22,12 +21,12 @@ const products = [
 // FIXED: Refactored ratings to be Categorical Strings
 const employees = [
   { 
-    name: "Alice Johnson", 
+    name: "Rohan", // CHANGED: Renamed Alice to Rohan to match the Staff User
     nodeLocation: "Main Counter", 
     totalSalesValue: 12500, 
     profitGenerated: 3200, 
     itemsSold: 450, 
-    rating: "Excellent", // Was 4.8
+    rating: "Excellent", 
     avgDiscount: 5.2 
   },
   { 
@@ -36,7 +35,7 @@ const employees = [
     totalSalesValue: 18200, 
     profitGenerated: 4500, 
     itemsSold: 120, 
-    rating: "Very Good", // Was 4.5
+    rating: "Very Good", 
     avgDiscount: 8.5 
   },
   { 
@@ -45,7 +44,7 @@ const employees = [
     totalSalesValue: 8400, 
     profitGenerated: 2100, 
     itemsSold: 600, 
-    rating: "Excellent", // Was 4.9
+    rating: "Excellent", 
     avgDiscount: 12.0 
   },
   { 
@@ -54,7 +53,7 @@ const employees = [
     totalSalesValue: 5000, 
     profitGenerated: 1200, 
     itemsSold: 90, 
-    rating: "Good", // Was 4.2
+    rating: "Good", 
     avgDiscount: 2.5 
   }
 ];
@@ -64,14 +63,15 @@ const users = [
     username: "admin",
     password: "123",
     name: "Pawan (Admin)",
-    role: "manager"
+    role: "manager",
+    employeeId: null // Admin usually doesn't need sales stats
   },
-
   {
     username: "staff",
     password: "123",
     name: "Rohan(Staff1)",
     role: "staff"
+    // employeeId will be assigned dynamically below
   }
 ];
 
@@ -91,12 +91,26 @@ const seedDB = async () => {
     await Product.insertMany(products);
 
     console.log("Inserting Employees...");
-    await Employee.insertMany(employees);
+    // Capture the created documents so we can get their _ids
+    const createdEmployees = await Employee.insertMany(employees);
 
-    console.log("Inserting Admin User...");
+    console.log("Linking Users to Employees...");
+    
+    // Find the employee document for "Rohan"
+    const rohanEmployee = createdEmployees.find(emp => emp.name === "Rohan");
+
+    if (rohanEmployee) {
+        // Link the "staff" user (index 1) to Rohan's Employee ID
+        users[1].employeeId = rohanEmployee._id;
+        console.log(`🔗 Linked User 'staff' to Employee 'Rohan' (ID: ${rohanEmployee._id})`);
+    } else {
+        console.warn("⚠️ Could not find Employee 'Rohan' to link.");
+    }
+
+    console.log("Inserting Users...");
     await User.insertMany(users); 
 
-    console.log("🎉 Database seeded successfully! Login with 'admin' / 'password123'");
+    console.log("🎉 Database seeded successfully! Login with 'admin' / '123' or 'staff' / '123'");
     process.exit();
   } catch (err) {
     console.error("❌ Seed Error:", err);

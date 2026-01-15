@@ -18,6 +18,12 @@ const UserSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true
+  },
+  // --- NEW FIELD: Link to Employee Stats ---
+  employeeId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Employee",
+    default: null // Managers/Admins might not have a sales profile
   }
 });
 
